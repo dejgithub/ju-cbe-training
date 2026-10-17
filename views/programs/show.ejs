@@ -1,0 +1,166 @@
+<%
+  const canManage = currentUser.role === 'Admin' || currentUser.role === 'Coordinator';
+%>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0"><%= program.name %></h2>
+    <p class="text-muted small mb-0"><span class="badge bg-light text-dark border"><%= program.code %></span> <span class="badge <%= statusBadgeClass(program.status) %>"><%= program.status %></span></p>
+  </div>
+  <div class="d-flex gap-2">
+    <% if (canManage) { %>
+      <a href="/programs/<%= program.id %>/edit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil me-1"></i> Edit</a>
+      <form method="post" action="/programs/<%= program.id %>/status" class="d-flex gap-1">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <select name="status" class="form-select form-select-sm">
+          <% ['Planned','Active','Completed','Cancelled'].forEach(function (s) { %><option value="<%= s %>" <%= program.status === s ? 'selected' : '' %>><%= s %></option><% }); %>
+        </select>
+        <button class="btn btn-ju btn-sm">Set status</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button">Overview</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-activities" type="button">Activities <span class="badge bg-secondary"><%= activities.length %></span></button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-students" type="button">Students <span class="badge bg-secondary"><%= placements.length %></span></button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-criteria" type="button">Assessment criteria <span class="badge bg-secondary"><%= criteria.length %></span></button></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="tab-overview">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <div class="card h-100"><div class="card-body">
+          <h3 class="h6">Description</h3>
+          <p class="small"><%= program.description || 'No description provided.' %></p>
+          <h3 class="h6 mt-3">Objectives</h3>
+          <p class="small"><%= program.objectives || 'No objectives provided.' %></p>
+          <h3 class="h6 mt-3">Expected learning outcomes</h3>
+          <p class="small mb-0"><%= program.learning_outcomes || 'No learning outcomes provided.' %></p>
+        </div></div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body">
+          <dl class="row mb-0 small">
+            <dt class="col-5 text-muted">Department</dt><dd class="col-7"><%= program.department_name || '-' %></dd>
+            <dt class="col-5 text-muted">Coordinator</dt><dd class="col-7"><%= program.coordinator_name || '-' %></dd>
+            <dt class="col-5 text-muted">Academic year</dt><dd class="col-7"><%= program.academic_year_name || '-' %></dd>
+            <dt class="col-5 text-muted">Start</dt><dd class="col-7"><%= formatDate(program.start_date) || '-' %></dd>
+            <dt class="col-5 text-muted">End</dt><dd class="col-7"><%= formatDate(program.end_date) || '-' %></dd>
+            <dt class="col-5 text-muted">Location</dt><dd class="col-7"><%= program.location || '-' %></dd>
+            <dt class="col-5 text-muted">Students</dt><dd class="col-7"><%= program.student_count %></dd>
+          </dl>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="tab-activities">
+    <% if (canManage) { %>
+      <div class="card mb-3">
+        <div class="card-header"><i class="bi bi-plus-circle me-1 text-ju"></i> Add activity</div>
+        <div class="card-body">
+          <form method="post" action="/programs/<%= program.id %>/activities" class="row g-2">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="col-md-4"><input type="text" name="title" class="form-control form-control-sm" placeholder="Activity title" required></div>
+            <div class="col-md-2">
+              <select name="type" class="form-select form-select-sm">
+                <% activityTypes.forEach(function (t) { %><option value="<%= t %>"><%= t %></option><% }); %>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select name="community_site_id" class="form-select form-select-sm">
+                <option value="">No specific site</option>
+                <% sites.forEach(function (s) { %><option value="<%= s.id %>"><%= s.name %></option><% }); %>
+              </select>
+            </div>
+            <div class="col-md-3"><input type="date" name="scheduled_date" class="form-control form-control-sm"></div>
+            <div class="col-md-2"><input type="time" name="start_time" class="form-control form-control-sm"></div>
+            <div class="col-md-2"><input type="time" name="end_time" class="form-control form-control-sm"></div>
+            <div class="col-md-4"><input type="text" name="location" class="form-control form-control-sm" placeholder="Location"></div>
+            <div class="col-md-4"><input type="datetime-local" name="deadline_at" class="form-control form-control-sm" title="Deadline (for assignments)"></div>
+            <div class="col-12"><textarea name="description" class="form-control form-control-sm" rows="2" placeholder="Description"></textarea></div>
+            <div class="col-12 d-flex align-items-center gap-3">
+              <div class="form-check"><input class="form-check-input" type="checkbox" name="assign_to_program" id="assignToProgram" value="1" checked><label class="form-check-label small" for="assignToProgram">Assign to all placed students</label></div>
+              <button class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Add activity</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    <% } %>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0" data-sortable>
+          <thead><tr><th class="sortable">Date</th><th>Title</th><th>Type</th><th>Site / location</th><th>Time</th><th>Deadline</th><% if (canManage) { %><th></th><% } %></tr></thead>
+          <tbody>
+            <% if (activities.length === 0) { %><tr><td colspan="7" class="text-center text-muted py-4">No activities yet.</td></tr><% } %>
+            <% activities.forEach(function (a) { %>
+              <tr>
+                <td><%= formatDate(a.scheduled_date) || '-' %></td>
+                <td><div class="fw-semibold"><%= a.title %></div><div class="text-muted small"><%= (a.description || '').slice(0,80) %></div></td>
+                <td><span class="badge bg-light text-dark border"><%= a.type %></span></td>
+                <td class="text-muted small"><%= a.site_name || a.location || '-' %></td>
+                <td class="small text-muted"><%= formatTime(a.start_time) %> - <%= formatTime(a.end_time) %></td>
+                <td class="small text-muted"><%= a.deadline_at ? formatDateTime(a.deadline_at) : '-' %></td>
+                <% if (canManage) { %>
+                  <td class="text-end"><form method="post" action="/programs/<%= program.id %>/activities/<%= a.id %>/delete" data-confirm="Delete this activity?"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td>
+                <% } %>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="tab-students">
+    <% if (canManage) { %><div class="mb-2"><a href="/placements/new?program_id=<%= program.id %>" class="btn btn-ju btn-sm"><i class="bi bi-person-plus me-1"></i> Assign students</a></div><% } %>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0" data-sortable>
+          <thead><tr><th class="sortable">Student</th><th>Student ID</th><th>Department</th><th>Group</th><th>Community site</th><th>Supervisor</th><th>Status</th></tr></thead>
+          <tbody>
+            <% if (placements.length === 0) { %><tr><td colspan="7" class="text-center text-muted py-4">No students placed yet.</td></tr><% } %>
+            <% placements.forEach(function (p) { %>
+              <tr>
+                <td class="fw-semibold"><%= p.student_name %></td>
+                <td class="font-monospace small"><%= p.student_id %></td>
+                <td class="text-muted small"><%= p.department_name || '-' %></td>
+                <td class="text-muted small"><%= p.group_name || '-' %></td>
+                <td class="text-muted small"><%= p.site_name || '-' %></td>
+                <td class="text-muted small"><%= p.supervisor_name || '-' %></td>
+                <td><span class="badge <%= statusBadgeClass(p.status) %>"><%= p.status %></span></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="tab-criteria">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="small text-muted">Total active weight: <strong class="<%= weightsSum === 100 ? 'text-success' : 'text-danger' %>"><%= weightsSum %>%</strong> (should equal 100%)</div>
+      <% if (canManage) { %><a href="/assessments/<%= program.id %>/criteria" class="btn btn-outline-ju btn-sm"><i class="bi bi-gear me-1"></i> Manage criteria</a><% } %>
+    </div>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead><tr><th>Criterion</th><th>Description</th><th class="text-end">Weight</th><th>Active</th></tr></thead>
+          <tbody>
+            <% if (criteria.length === 0) { %><tr><td colspan="4" class="text-center text-muted py-4">No criteria defined.</td></tr><% } %>
+            <% criteria.forEach(function (c) { %>
+              <tr>
+                <td class="fw-semibold"><%= c.name %></td>
+                <td class="text-muted small"><%= c.description || '-' %></td>
+                <td class="text-end"><%= c.weight %>%</td>
+                <td><% if (c.is_active) { %><span class="badge bg-success">Active</span><% } else { %><span class="badge bg-secondary">Inactive</span><% } %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

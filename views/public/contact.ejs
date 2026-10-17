@@ -1,0 +1,73 @@
+<section class="public-page-header">
+  <div class="container">
+    <h1 class="fw-bold mb-1">Contact Us</h1>
+    <p class="text-white-50 mb-0">We would love to hear from you</p>
+  </div>
+</section>
+
+<section class="container py-5">
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card mb-3">
+        <div class="card-header"><i class="bi bi-geo-alt me-1 text-ju"></i> Reach the CBE office</div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            <li class="d-flex gap-3 mb-3">
+              <div class="stat-icon bg-ju-soft text-ju"><i class="bi bi-building"></i></div>
+              <div><div class="fw-semibold small">Address</div><div class="text-muted small"><%= contact.address %></div></div>
+            </li>
+            <% if (contact.email) { %>
+            <li class="d-flex gap-3 mb-3">
+              <div class="stat-icon bg-ju-soft text-ju"><i class="bi bi-envelope"></i></div>
+              <div><div class="fw-semibold small">Email</div><a class="text-muted small" href="mailto:<%= contact.email %>"><%= contact.email %></a></div>
+            </li>
+            <% } %>
+            <% if (contact.phone) { %>
+            <li class="d-flex gap-3">
+              <div class="stat-icon bg-ju-soft text-ju"><i class="bi bi-telephone"></i></div>
+              <div><div class="fw-semibold small">Phone</div><a class="text-muted small" href="tel:<%= contact.phone %>"><%= contact.phone %></a></div>
+            </li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-light border small mb-0">
+        <i class="bi bi-info-circle text-ju me-1"></i>
+        For issues with your account or CBE placement, please also contact your department's CBE coordinator.
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-chat-dots me-1 text-ju"></i> Send us a message</div>
+        <div class="card-body">
+          <% if (errors && errors.length) { %>
+            <div class="alert alert-danger py-2 small"><ul class="mb-0"><% errors.forEach(function (e) { %><li><%= e %></li><% }); %></ul></div>
+          <% } %>
+          <form method="post" action="/contact" class="row g-3" novalidate>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="col-md-6">
+              <label class="form-label required" for="name">Your name</label>
+              <input type="text" class="form-control" id="name" name="name" value="<%= form.name || '' %>" required maxlength="150">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required" for="email">Email address</label>
+              <input type="email" class="form-control" id="email" name="email" value="<%= form.email || '' %>" required maxlength="150">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="subject">Subject</label>
+              <input type="text" class="form-control" id="subject" name="subject" value="<%= form.subject || '' %>" maxlength="200">
+            </div>
+            <div class="col-12">
+              <label class="form-label required" for="message">Message</label>
+              <textarea class="form-control" id="message" name="message" rows="5" required maxlength="5000"><%= form.message || '' %></textarea>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-ju"><i class="bi bi-send me-1"></i> Send message</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

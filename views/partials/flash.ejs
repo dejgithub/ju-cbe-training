@@ -1,0 +1,7 @@
+<% if (flash) { %>
+  <div class="alert alert-<%= flash.type %> alert-dismissible fade show" data-autodismiss role="alert">
+    <i class="bi bi-<%= flash.type === 'success' ? 'check-circle' : flash.type === 'danger' ? 'exclamation-octagon' : flash.type === 'warning' ? 'exclamation-triangle' : 'info-circle' %> me-1"></i>
+    <%= flash.text %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>

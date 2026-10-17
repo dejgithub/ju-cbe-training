@@ -1,0 +1,50 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">Academic years</h2>
+    <p class="text-muted small mb-0"><%= years.length %> year(s)</p>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead><tr><th>Name</th><th>Start</th><th>End</th><th>Current</th><th class="text-end">Actions</th></tr></thead>
+          <tbody>
+            <% if (years.length === 0) { %><tr><td colspan="5" class="text-center text-muted py-4">No academic years defined.</td></tr><% } %>
+            <% years.forEach(function (y) { %>
+              <tr>
+                <td colspan="5" class="p-0">
+                  <form method="post" action="/admin/years/<%= y.id %>" class="row g-2 align-items-center m-0 p-2 border-bottom">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div class="col-md-3"><input type="text" name="name" class="form-control form-control-sm" value="<%= y.name %>" required></div>
+                    <div class="col-md-3"><input type="date" name="start_date" class="form-control form-control-sm" value="<%= y.start_date || '' %>"></div>
+                    <div class="col-md-3"><input type="date" name="end_date" class="form-control form-control-sm" value="<%= y.end_date || '' %>"></div>
+                    <div class="col-md-2"><input type="checkbox" name="is_current" value="1" class="form-check-input" <%= y.is_current ? 'checked' : '' %>> Current</div>
+                    <div class="col-md-1 text-end"><button class="btn btn-sm btn-outline-primary"><i class="bi bi-save"></i></button></div>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-plus-circle me-1 text-ju"></i> Add academic year</div>
+      <div class="card-body">
+        <form method="post" action="/admin/years" class="row g-2">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="col-12"><label class="form-label small">Name</label><input type="text" name="name" class="form-control form-control-sm" required placeholder="e.g. 2024/2025"></div>
+          <div class="col-6"><label class="form-label small">Start date</label><input type="date" name="start_date" class="form-control form-control-sm"></div>
+          <div class="col-6"><label class="form-label small">End date</label><input type="date" name="end_date" class="form-control form-control-sm"></div>
+          <div class="col-12 form-check ms-1"><input type="checkbox" name="is_current" value="1" class="form-check-input" id="new_current"><label class="form-check-label small" for="new_current">Set as current academic year</label></div>
+          <div class="col-12"><button class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Add year</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">My attendance</h2>
+    <p class="text-muted small mb-0"><%= student.full_name %> &middot; <%= student.student_id %></p>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/attendance">
+      <div class="col-md-5">
+        <label class="form-label small">Program</label>
+        <select name="program_id" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">-- Select program --</option>
+          <% programs.forEach(function (p) { %><option value="<%= p.id %>" <%= String(selectedProgram) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-md-3"><label class="form-label small">From</label><input type="date" name="start" class="form-control form-control-sm" value="<%= start %>"></div>
+      <div class="col-md-3"><label class="form-label small">To</label><input type="date" name="end" class="form-control form-control-sm" value="<%= end %>"></div>
+      <div class="col-md-1 d-grid"><button class="btn btn-ju btn-sm"><i class="bi bi-search"></i></button></div>
+    </form>
+  </div>
+</div>
+
+<% if (!selectedProgram) { %>
+  <div class="empty-state"><i class="bi bi-calendar-check"></i>No CBE program is linked to your account.</div>
+<% } else { %>
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-table me-1 text-ju"></i> Summary for the selected period</div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Program</th><th class="text-end">Recorded</th><th class="text-end">Present</th><th class="text-end">Absent</th><th class="text-end">Late</th><th class="text-end">Excused</th><th class="text-end">Attendance %</th></tr></thead>
+            <tbody>
+              <% if (stats.length === 0) { %><tr><td colspan="7" class="text-center text-muted py-4">No attendance records for the selected period.</td></tr><% } %>
+              <% stats.forEach(function (r) { %>
+                <tr>
+                  <td class="fw-semibold"><%= r.program_name %></td>
+                  <td class="text-end"><%= r.total_days %></td>
+                  <td class="text-end text-success"><%= r.present_days %></td>
+                  <td class="text-end text-danger"><%= r.absent_days %></td>
+                  <td class="text-end text-warning"><%= r.late_days %></td>
+                  <td class="text-end text-info"><%= r.excused_days %></td>
+                  <td class="text-end"><span class="badge <%= Number(r.attendance_percentage) >= 75 ? 'bg-success' : 'bg-danger' %>"><%= r.attendance_percentage %>%</span></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-pie-chart me-1 text-ju"></i> Overall (last 3 months)</div>
+        <div class="card-body"><div class="chart-container-sm"><canvas id="myAttendanceChart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const summary = <%- JSON.stringify(summary) %>;
+      new Chart(document.getElementById('myAttendanceChart'), {
+        type: 'doughnut',
+        data: {
+          labels: summary.length ? summary.map(s => s.status) : ['No data'],
+          datasets: [{ data: summary.length ? summary.map(s => s.total) : [1], backgroundColor: ['#198754','#dc3545','#ffc107','#0dcaf0','#ced4da'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+    });
+  </script>
+<% } %>

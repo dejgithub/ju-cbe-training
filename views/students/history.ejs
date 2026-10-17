@@ -1,0 +1,36 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0"><%= student.full_name %></h2>
+    <p class="text-muted small mb-0"><i class="bi bi-hash"></i> <%= student.student_id %> &middot; <%= student.department_name || '-' %> &middot; Year <%= student.year_of_study %></p>
+  </div>
+  <a href="/students" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Status</div><span class="badge <%= statusBadgeClass(student.status) %>"><%= student.status %></span></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Group</div><div class="fw-semibold"><%= student.group_name || 'Not assigned' %></div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Email</div><div class="fw-semibold small"><%= student.email || '-' %></div></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-muted small">Phone</div><div class="fw-semibold"><%= student.phone || '-' %></div></div></div></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="bi bi-clock-history me-1 text-ju"></i> CBE training history</div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr><th>Program</th><th>Code</th><th>Community site</th><th>Period</th><th>Program status</th><th>Report</th></tr></thead>
+      <tbody>
+        <% if (history.length === 0) { %><tr><td colspan="6" class="text-center text-muted py-4">No CBE history recorded.</td></tr><% } %>
+        <% history.forEach(function (h) { %>
+          <tr>
+            <td class="fw-semibold"><a href="/programs/<%= h.program_id %>"><%= h.name %></a></td>
+            <td class="small text-muted"><%= h.code %></td>
+            <td class="text-muted small"><%= h.site_name || '-' %></td>
+            <td class="small text-muted"><%= formatDate(h.start_date) %> - <%= formatDate(h.end_date) %></td>
+            <td><span class="badge <%= statusBadgeClass(h.status) %>"><%= h.status %></span></td>
+            <td><% if (h.report_status) { %><span class="badge <%= statusBadgeClass(h.report_status) %>"><%= h.report_status %></span><% } else { %><span class="text-muted small">None</span><% } %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>

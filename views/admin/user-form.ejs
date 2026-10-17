@@ -1,0 +1,110 @@
+<%
+  const rec = userRecord || {};
+  const selectedRoleId = rec.roleId || rec.role_id || '';
+%>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0"><%= isEdit ? 'Edit user account' : 'Create user account' %></h2>
+    <p class="text-muted small mb-0"><%= isEdit ? 'Update account details and access.' : 'Create an account and optionally link a role profile.' %></p>
+  </div>
+  <a href="/admin/users" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+</div>
+
+<% if (errors && errors.length) { %>
+  <div class="alert alert-danger"><ul class="mb-0 small"><% errors.forEach(function (e) { %><li><%= e %></li><% }); %></ul></div>
+<% } %>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="<%= action %>" class="row g-3" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="col-md-6">
+        <label class="form-label required">Full name</label>
+        <input type="text" name="full_name" class="form-control" value="<%= rec.full_name || rec.fullName || '' %>" required maxlength="150">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label <%= isEdit ? '' : 'required' %>">Username</label>
+        <input type="text" name="username" class="form-control" value="<%= rec.username || '' %>" <%= isEdit ? 'disabled' : 'required' %> maxlength="100">
+        <% if (isEdit) { %><div class="form-text">Usernames cannot be changed.</div><% } %>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" value="<%= rec.email || '' %>" maxlength="150">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Phone</label>
+        <input type="text" name="phone" class="form-control" value="<%= rec.phone || '' %>" maxlength="30">
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label required">Role</label>
+        <select name="role_id" class="form-select" id="roleSelect" required>
+          <option value="">-- Select role --</option>
+          <% roles.forEach(function (r) { %><option value="<%= r.id %>" data-role="<%= r.name %>" <%= String(selectedRoleId) === String(r.id) ? 'selected' : '' %>><%= r.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Department</label>
+        <select name="department_id" class="form-select">
+          <option value="">-- None --</option>
+          <% departments.forEach(function (d) { %><option value="<%= d.id %>" <%= String(rec.departmentId || rec.department_id) === String(d.id) ? 'selected' : '' %>><%= d.name %></option><% }); %>
+        </select>
+      </div>
+
+      <% if (!isEdit) { %>
+        <div class="col-md-6">
+          <label class="form-label">Password</label>
+          <input type="text" name="password" class="form-control" placeholder="Leave blank to use the default password">
+        </div>
+      <% } else { %>
+        <div class="col-md-6 d-flex align-items-end">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_active" id="is_active" value="1" <%= rec.isActive ? 'checked' : '' %>>
+            <label class="form-check-label" for="is_active">Account is active</label>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="col-12" id="instructorFields" style="display:none">
+        <div class="row g-3 border-top pt-3">
+          <div class="col-12"><div class="text-muted small fw-semibold"><i class="bi bi-person-badge me-1"></i> Instructor profile</div></div>
+          <div class="col-md-4"><label class="form-label">Employee ID</label><input type="text" name="employee_id" class="form-control" value="<%= rec.employee_id || '' %>"></div>
+          <div class="col-md-4"><label class="form-label">Title</label><input type="text" name="title" class="form-control" value="<%= rec.title || '' %>" placeholder="Dr., Mr., Ms."></div>
+          <div class="col-md-4"><label class="form-label">Specialization</label><input type="text" name="specialization" class="form-control" value="<%= rec.specialization || '' %>"></div>
+        </div>
+      </div>
+
+      <div class="col-12" id="partnerFields" style="display:none">
+        <div class="row g-3 border-top pt-3">
+          <div class="col-12"><div class="text-muted small fw-semibold"><i class="bi bi-building me-1"></i> Partner organization</div></div>
+          <div class="col-md-6">
+            <label class="form-label">Link to organization</label>
+            <select name="community_partner_id" class="form-select">
+              <option value="">-- None --</option>
+              <% partners.forEach(function (p) { %><option value="<%= p.id %>"><%= p.organization_name %></option><% }); %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <button class="btn btn-ju"><i class="bi bi-save me-1"></i><%= isEdit ? 'Save changes' : 'Create account' %></button>
+        <a href="/admin/users" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var sel = document.getElementById('roleSelect');
+    function sync() {
+      var opt = sel.options[sel.selectedIndex];
+      var role = opt ? opt.getAttribute('data-role') : '';
+      document.getElementById('instructorFields').style.display = role === 'Instructor' ? '' : 'none';
+      document.getElementById('partnerFields').style.display = role === 'Partner' ? '' : 'none';
+    }
+    sel.addEventListener('change', sync);
+    sync();
+  });
+</script>

@@ -1,0 +1,72 @@
+<%
+  const canManage = currentUser.role === 'Admin' || currentUser.role === 'Coordinator';
+%>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">CBE Programs</h2>
+    <p class="text-muted small mb-0"><%= programs.length %> program(s)</p>
+  </div>
+  <% if (canManage) { %>
+    <a href="/programs/new" class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Create program</a>
+  <% } %>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/programs">
+      <div class="col-12 col-md-5">
+        <label class="form-label small">Search</label>
+        <input type="text" name="search" class="form-control form-control-sm" value="<%= filters.search %>" placeholder="Program name, code or location">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All</option>
+          <% ['Planned','Active','Completed','Cancelled'].forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Department</label>
+        <select name="department_id" class="form-select form-select-sm">
+          <option value="">All</option>
+          <% departments.forEach(function (d) { %><option value="<%= d.id %>" <%= String(filters.department_id) === String(d.id) ? 'selected' : '' %>><%= d.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-12 col-md-1 d-grid"><button class="btn btn-ju btn-sm"><i class="bi bi-search"></i></button></div>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3">
+  <% if (programs.length === 0) { %>
+    <div class="col-12"><div class="empty-state"><i class="bi bi-journal-bookmark"></i>No programs found.</div></div>
+  <% } %>
+  <% programs.forEach(function (p) { %>
+    <div class="col-md-6 col-xl-4">
+      <div class="card h-100">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-light text-dark border"><%= p.code %></span>
+            <span class="badge <%= statusBadgeClass(p.status) %>"><%= p.status %></span>
+          </div>
+          <h3 class="h6"><a href="/programs/<%= p.id %>" class="text-dark"><%= p.name %></a></h3>
+          <p class="text-muted small flex-grow-1"><%= (p.description || '').slice(0, 110) %><%= (p.description || '').length > 110 ? '...' : '' %></p>
+          <div class="small text-muted mb-2">
+            <div><i class="bi bi-diagram-3 me-1"></i><%= p.department_name || 'No department' %></div>
+            <div><i class="bi bi-calendar3 me-1"></i><%= formatDate(p.start_date) %> - <%= formatDate(p.end_date) %></div>
+            <div><i class="bi bi-person me-1"></i><%= p.coordinator_name || 'Unassigned coordinator' %></div>
+            <div><i class="bi bi-geo-alt me-1"></i><%= p.location || '-' %></div>
+          </div>
+          <div class="d-flex gap-2 small">
+            <span class="badge bg-ju"><%= p.student_count %> students</span>
+            <span class="badge bg-secondary"><%= p.site_count %> sites</span>
+          </div>
+        </div>
+        <div class="card-footer bg-white d-flex gap-2">
+          <a href="/programs/<%= p.id %>" class="btn btn-sm btn-outline-ju flex-grow-1">Open</a>
+          <% if (canManage) { %><a href="/programs/<%= p.id %>/edit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a><% } %>
+        </div>
+      </div>
+    </div>
+  <% }); %>
+</div>

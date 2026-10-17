@@ -1,0 +1,33 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Community placement report</h2>
+    <p class="text-muted small mb-0"><%= rows.length %> record(s)</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/analytics/placements.csv<%= toQuery(filters) ? '?' + toQuery(filters) : '' %>" class="btn btn-ju btn-sm"><i class="bi bi-download me-1"></i> Download CSV</a>
+    <a href="/analytics" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Analytics</a>
+  </div>
+</div>
+
+<%- include('_filters', { options, filters, action: '/analytics/placements', withGroup: true, withStatus: true, statusOptions: ['Enrolled','Inactive','Graduated','Transferred'] }) %>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" data-sortable>
+      <thead><tr><th class="sortable">Student ID</th><th class="sortable">Full name</th><th>Department</th><th>Program</th><th>Community site</th><th>Supervisor</th></tr></thead>
+      <tbody>
+        <% if (rows.length === 0) { %><tr><td colspan="6" class="text-center text-muted py-4">No matching placements.</td></tr><% } %>
+        <% rows.forEach(function (r) { %>
+          <tr>
+            <td class="font-monospace small"><%= r.student_id %></td>
+            <td class="fw-semibold"><%= r.full_name %></td>
+            <td class="small text-muted"><%= r.department || '-' %></td>
+            <td class="small text-muted"><%= r.program || '-' %></td>
+            <td class="small"><%= r.placement_site || '-' %></td>
+            <td class="small text-muted"><%= r.supervisor || '-' %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>

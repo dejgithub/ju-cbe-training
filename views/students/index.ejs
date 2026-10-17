@@ -1,0 +1,111 @@
+<%
+  const canManage = currentUser.role === 'Admin' || currentUser.role === 'Coordinator';
+%>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Students</h2>
+    <p class="text-muted small mb-0"><%= students.length %> record(s)</p>
+  </div>
+  <% if (canManage) { %>
+    <div class="d-flex gap-2">
+      <a href="/students/import" class="btn btn-outline-ju btn-sm"><i class="bi bi-upload me-1"></i> Import CSV</a>
+      <a href="/students/new" class="btn btn-ju btn-sm"><i class="bi bi-person-plus me-1"></i> Register student</a>
+    </div>
+  <% } %>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/students">
+      <div class="col-12 col-md-4">
+        <label class="form-label small">Search</label>
+        <input type="text" name="search" class="form-control form-control-sm" value="<%= filters.search %>" placeholder="Name, Student ID, email or phone">
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label small">Department</label>
+        <select name="department_id" class="form-select form-select-sm">
+          <option value="">All</option>
+          <% departments.forEach(function (d) { %><option value="<%= d.id %>" <%= String(filters.department_id) === String(d.id) ? 'selected' : '' %>><%= d.code %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-1">
+        <label class="form-label small">Year</label>
+        <select name="year" class="form-select form-select-sm">
+          <option value="">All</option>
+          <% [1,2,3,4,5,6].forEach(function (y) { %><option value="<%= y %>" <%= String(filters.year) === String(y) ? 'selected' : '' %>><%= y %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label small">Group</label>
+        <select name="group_id" class="form-select form-select-sm">
+          <option value="">All</option>
+          <% groups.forEach(function (g) { %><option value="<%= g.id %>" <%= String(filters.group_id) === String(g.id) ? 'selected' : '' %>><%= g.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All</option>
+          <% ['Enrolled','Inactive','Graduated','Transferred'].forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-12 col-md-1 d-grid">
+        <button class="btn btn-ju btn-sm"><i class="bi bi-search"></i></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-people me-1 text-ju"></i> Student records</span>
+    <input type="text" class="form-control form-control-sm w-auto" placeholder="Filter table..." data-table-filter="#studentsTable">
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" id="studentsTable" data-sortable>
+      <thead>
+        <tr>
+          <th class="sortable">Student ID</th>
+          <th class="sortable">Full name</th>
+          <th class="sortable">Department</th>
+          <th class="sortable">Year</th>
+          <th class="sortable">Group</th>
+          <th class="sortable">Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (students.length === 0) { %>
+          <tr><td colspan="7"><div class="empty-state"><i class="bi bi-people"></i>No students match your filters.</div></td></tr>
+        <% } %>
+        <% students.forEach(function (s) { %>
+          <tr>
+            <td class="font-monospace small"><%= s.student_id %></td>
+            <td>
+              <div class="fw-semibold"><%= s.full_name %></div>
+              <div class="text-muted" style="font-size:.75rem"><%= s.email || '-' %> &middot; <%= s.phone || '-' %></div>
+            </td>
+            <td class="text-muted small"><%= s.department_name || '-' %></td>
+            <td><%= s.year_of_study %></td>
+            <td class="text-muted small"><%= s.group_name || '-' %></td>
+            <td><span class="badge <%= statusBadgeClass(s.status) %>"><%= s.status %></span></td>
+            <td class="text-end">
+              <div class="btn-group btn-group-sm">
+                <a href="/students/<%= s.id %>/history" class="btn btn-outline-secondary" title="CBE history"><i class="bi bi-clock-history"></i></a>
+                <% if (canManage) { %>
+                  <a href="/students/<%= s.id %>/edit" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                <% } %>
+              </div>
+              <% if (canManage) { %>
+                <form method="post" action="/students/<%= s.id %>/delete" class="d-inline" data-confirm="Delete <%= s.full_name %>? This also removes the linked user account.">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>

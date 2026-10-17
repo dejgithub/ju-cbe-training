@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Jimma University Community-Based Education (CBE) Training Management System">
+  <title><%= typeof title !== 'undefined' ? title + ' | ' : '' %><%= institutionName %> CBE</title>
+  <link rel="icon" type="image/jpeg" href="/img/ju-logo.jpg">
+  <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="public-body">
+<header class="public-navbar">
+  <div class="container d-flex flex-wrap align-items-center justify-content-between py-2">
+    <a href="/" class="public-brand">
+      <img src="/img/ju-logo.jpg" alt="<%= institutionName %> logo" class="brand-logo-img">
+      <span class="public-brand-text">
+        <strong><%= institutionName %></strong>
+        <small>CBE Training Management System</small>
+      </span>
+    </a>
+    <button class="btn btn-sm btn-light d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav" aria-label="Toggle navigation">
+      <i class="bi bi-list"></i>
+    </button>
+    <nav class="public-nav collapse d-lg-flex" id="publicNav">
+      <a href="/" class="public-link <%= currentPath === '/' ? 'active' : '' %>">Home</a>
+      <a href="/about" class="public-link <%= currentPath === '/about' ? 'active' : '' %>">About</a>
+      <a href="/mission" class="public-link <%= currentPath === '/mission' ? 'active' : '' %>">Mission</a>
+      <a href="/vision" class="public-link <%= currentPath === '/vision' ? 'active' : '' %>">Vision</a>
+      <a href="/contact" class="public-link <%= currentPath === '/contact' ? 'active' : '' %>">Contact Us</a>
+      <% if (currentUser) { %>
+        <a href="/dashboard" class="btn btn-ju btn-sm ms-lg-2"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+      <% } else { %>
+        <a href="/login" class="btn btn-ju btn-sm ms-lg-2"><i class="bi bi-box-arrow-in-right me-1"></i> Sign in</a>
+      <% } %>
+    </nav>
+  </div>
+</header>
+
+<main class="public-main">
+  <div class="container">
+    <%- include('../partials/flash') %>
+  </div>
+  <%- body %>
+</main>
+
+<footer class="public-footer">
+  <div class="container py-4">
+    <div class="row g-3">
+      <div class="col-md-5">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <img src="/img/ju-logo.jpg" alt="<%= institutionName %> logo" class="brand-logo-img-sm">
+          <strong><%= institutionName %></strong>
+        </div>
+        <p class="text-muted small mb-0">Community-Based Education (CBE) Training Management System — connecting students, instructors, and community partners.</p>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="fw-semibold mb-2 small text-uppercase text-muted">Explore</div>
+        <ul class="list-unstyled small mb-0 public-footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/mission">Mission</a></li>
+          <li><a href="/vision">Vision</a></li>
+          <li><a href="/contact">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="fw-semibold mb-2 small text-uppercase text-muted">Access</div>
+        <ul class="list-unstyled small mb-0 public-footer-links">
+          <% if (currentUser) { %>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/profile">My profile</a></li>
+          <% } else { %>
+            <li><a href="/login">Sign in</a></li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+    <hr class="my-3">
+    <div class="d-flex flex-wrap justify-content-between text-muted small">
+      <span>&copy; <%= new Date().getFullYear() %> <%= institutionName %> &middot; CBE Training Management System</span>
+      <span>All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<%- typeof pageScripts !== 'undefined' ? pageScripts : '' %>
+</body>
+</html>

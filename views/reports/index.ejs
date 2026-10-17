@@ -1,0 +1,70 @@
+<%
+  const isAdmin = currentUser.role === 'Admin';
+%>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Fieldwork Reports</h2>
+    <p class="text-muted small mb-0"><%= reports.length %> report(s)</p>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/reports">
+      <div class="col-12 col-md-4">
+        <label class="form-label small">Search</label>
+        <input type="text" name="search" class="form-control form-control-sm" value="<%= filters.search %>" placeholder="Student or title">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Program</label>
+        <select name="program_id" class="form-select form-select-sm">
+          <option value="">All programs</option>
+          <% programs.forEach(function (p) { %><option value="<%= p.id %>" <%= String(filters.program_id) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All</option>
+          <% ['Submitted','Under Review','Approved','Returned'].forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 d-grid"><button class="btn btn-ju btn-sm"><i class="bi bi-search"></i></button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-file-earmark-text me-1 text-ju"></i> Submissions</span>
+    <input type="text" class="form-control form-control-sm w-auto" placeholder="Filter table..." data-table-filter="#reportsTable">
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" id="reportsTable" data-sortable>
+      <thead>
+        <tr><th class="sortable">Student</th><th>Title</th><th>Program</th><th class="sortable">Submitted</th><th>Status</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        <% if (reports.length === 0) { %><tr><td colspan="6"><div class="empty-state"><i class="bi bi-file-earmark-text"></i>No reports found.</div></td></tr><% } %>
+        <% reports.forEach(function (r) { %>
+          <tr>
+            <td><div class="fw-semibold"><%= r.student_name %></div><div class="text-muted font-monospace" style="font-size:.75rem"><%= r.student_id %></div></td>
+            <td><a href="/reports/<%= r.id %>" class="fw-semibold"><%= r.title %></a><div class="text-muted small"><%= (r.description || '').slice(0,70) %></div></td>
+            <td class="small text-muted"><%= r.program_name %></td>
+            <td class="small text-muted"><%= formatDateTime(r.submitted_at) %></td>
+            <td><span class="badge <%= statusBadgeClass(r.status) %>"><%= r.status %></span></td>
+            <td class="text-end">
+              <a href="/reports/<%= r.id %>" class="btn btn-sm btn-outline-ju"><i class="bi bi-eye"></i> Open</a>
+              <% if (isAdmin) { %>
+                <form method="post" action="/reports/<%= r.id %>/delete" class="d-inline" data-confirm="Delete this report and its file?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>

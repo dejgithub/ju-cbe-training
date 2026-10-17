@@ -1,0 +1,96 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Student groups</h2>
+    <p class="text-muted small mb-0"><%= groups.length %> group(s)</p>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/admin/groups">
+      <div class="col-md-5">
+        <label class="form-label small">Filter by program</label>
+        <select name="program_id" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">All programs</option>
+          <% programs.forEach(function (p) { %><option value="<%= p.id %>" <%= String(filters.program_id) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+        </select>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead><tr><th>Group</th><th>Program</th><th>Department</th><th class="text-end">Members</th><th class="text-end">Actions</th></tr></thead>
+          <tbody>
+            <% if (groups.length === 0) { %><tr><td colspan="5" class="text-center text-muted py-4">No groups found.</td></tr><% } %>
+            <% groups.forEach(function (g) { %>
+              <tr>
+                <td colspan="5" class="p-0">
+                  <form method="post" action="/admin/groups/<%= g.id %>" class="row g-2 align-items-center m-0 p-2 border-bottom">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div class="col-md-3"><input type="text" name="name" class="form-control form-control-sm" value="<%= g.name %>" required placeholder="Group name"></div>
+                    <div class="col-md-2"><input type="text" name="code" class="form-control form-control-sm" value="<%= g.code || '' %>" placeholder="Code"></div>
+                    <div class="col-md-7">
+                      <div class="row g-1">
+                        <div class="col-6">
+                          <select name="cbe_program_id" class="form-select form-select-sm">
+                            <option value="">No program</option>
+                            <% programs.forEach(function (p) { %><option value="<%= p.id %>" <%= String(g.cbe_program_id) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <select name="department_id" class="form-select form-select-sm">
+                            <option value="">No department</option>
+                            <% departments.forEach(function (d) { %><option value="<%= d.id %>" <%= String(g.department_id) === String(d.id) ? 'selected' : '' %>><%= d.name %></option><% }); %>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <select name="academic_year_id" class="form-select form-select-sm">
+                            <option value="">No academic year</option>
+                            <% years.forEach(function (y) { %><option value="<%= y.id %>" <%= String(g.academic_year_id) === String(y.id) ? 'selected' : '' %>><%= y.name %></option><% }); %>
+                          </select>
+                        </div>
+                        <div class="col-6 text-end"><%= g.members %> member(s)</div>
+                      </div>
+                    </div>
+                    <div class="col-md-1 text-end"><button class="btn btn-sm btn-outline-primary" title="Save"><i class="bi bi-save"></i></button></div>
+                  </form>
+                  <form method="post" action="/admin/groups/<%= g.id %>/delete" class="px-2 pb-2 text-end" data-confirm="Delete group <%= g.name %>? Members will be unassigned.">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i> Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-plus-circle me-1 text-ju"></i> Add group</div>
+      <div class="card-body">
+        <form method="post" action="/admin/groups" class="row g-2">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="col-6"><label class="form-label small">Name</label><input type="text" name="name" class="form-control form-control-sm" required></div>
+          <div class="col-6"><label class="form-label small">Code</label><input type="text" name="code" class="form-control form-control-sm"></div>
+          <div class="col-12"><label class="form-label small">Program</label>
+            <select name="cbe_program_id" class="form-select form-select-sm"><option value="">None</option><% programs.forEach(function (p) { %><option value="<%= p.id %>"><%= p.name %></option><% }); %></select>
+          </div>
+          <div class="col-12"><label class="form-label small">Department</label>
+            <select name="department_id" class="form-select form-select-sm"><option value="">None</option><% departments.forEach(function (d) { %><option value="<%= d.id %>"><%= d.name %></option><% }); %></select>
+          </div>
+          <div class="col-12"><label class="form-label small">Academic year</label>
+            <select name="academic_year_id" class="form-select form-select-sm"><option value="">None</option><% years.forEach(function (y) { %><option value="<%= y.id %>"><%= y.name %></option><% }); %></select>
+          </div>
+          <div class="col-12"><button class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Add group</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

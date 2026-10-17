@@ -1,0 +1,61 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Evaluate students</h2>
+    <p class="text-muted small mb-0"><%= program.name %></p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/assessments?program_id=<%= program.id %>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+  </div>
+</div>
+
+<% if (criteria.length === 0) { %>
+  <div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-1"></i> No active assessment criteria are defined for this program. Ask a coordinator or administrator to configure them.</div>
+<% } else { %>
+  <form method="post" action="/assessments/<%= program.id %>/evaluate">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clipboard-check me-1 text-ju"></i> Scores (0–100 per criterion)</span>
+        <span class="badge bg-secondary"><%= students.length %> students</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="min-width:180px">Student</th>
+              <% criteria.forEach(function (c) { %>
+                <th class="text-center" style="min-width:150px"><%= c.name %><br><small class="text-muted">Weight <%= c.weight %>%</small></th>
+              <% }); %>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (students.length === 0) { %><tr><td colspan="<%= criteria.length + 1 %>" class="text-center text-muted py-4">No students are available for you to evaluate.</td></tr><% } %>
+            <% students.forEach(function (s) {
+                 const map = scoreMap[s.id];
+            %>
+              <tr>
+                <td>
+                  <div class="fw-semibold"><%= s.full_name %></div>
+                  <div class="text-muted font-monospace" style="font-size:.75rem"><%= s.student_id %></div>
+                </td>
+                <% criteria.forEach(function (c) {
+                     const existing = map ? map.get(c.id) : null;
+                %>
+                  <td>
+                    <input type="number" name="score_<%= s.id %>_<%= c.id %>" class="form-control form-control-sm" min="0" max="100" step="0.01" value="<%= existing ? existing.score : '' %>" placeholder="—">
+                    <input type="text" name="comment_<%= s.id %>_<%= c.id %>" class="form-control form-control-sm mt-1" value="<%= existing && existing.comment ? existing.comment : '' %>" placeholder="Comment (optional)">
+                  </td>
+                <% }); %>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+      <% if (students.length > 0) { %>
+        <div class="card-footer d-flex justify-content-end">
+          <button class="btn btn-ju"><i class="bi bi-save me-1"></i> Save assessments &amp; recompute</button>
+        </div>
+      <% } %>
+    </div>
+  </form>
+<% } %>

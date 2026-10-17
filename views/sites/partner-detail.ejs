@@ -1,0 +1,92 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0"><%= partner.organization_name %></h2>
+    <p class="text-muted small mb-0">Community partner organization</p>
+  </div>
+  <a href="/sites/partners" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-pencil-square me-1 text-ju"></i> Organization details</div>
+      <div class="card-body">
+        <form method="post" action="/sites/partners/<%= partner.id %>" class="row g-2">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="col-12"><label class="form-label small">Organization name</label><input type="text" name="organization_name" class="form-control form-control-sm" value="<%= partner.organization_name %>" required></div>
+          <div class="col-md-6"><label class="form-label small">Contact person</label><input type="text" name="contact_person" class="form-control form-control-sm" value="<%= partner.contact_person || '' %>"></div>
+          <div class="col-md-6"><label class="form-label small">Phone</label><input type="text" name="phone" class="form-control form-control-sm" value="<%= partner.phone || '' %>"></div>
+          <div class="col-12"><label class="form-label small">Email</label><input type="email" name="email" class="form-control form-control-sm" value="<%= partner.email || '' %>"></div>
+          <div class="col-12"><label class="form-label small">Address</label><input type="text" name="address" class="form-control form-control-sm" value="<%= partner.address || '' %>"></div>
+          <div class="col-12"><label class="form-label small">Description</label><textarea name="description" class="form-control form-control-sm" rows="2"><%= partner.description || '' %></textarea></div>
+          <div class="col-12"><button class="btn btn-ju btn-sm"><i class="bi bi-save me-1"></i> Save</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="bi bi-person-plus me-1 text-ju"></i> Add partner user account</div>
+      <div class="card-body">
+        <form method="post" action="/sites/partners/<%= partner.id %>/users" class="row g-2">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="col-md-6"><input type="text" name="username" class="form-control form-control-sm" placeholder="Username" required></div>
+          <div class="col-md-6"><input type="text" name="full_name" class="form-control form-control-sm" placeholder="Full name" required></div>
+          <div class="col-md-6"><input type="email" name="email" class="form-control form-control-sm" placeholder="Email"></div>
+          <div class="col-md-6"><input type="text" name="phone" class="form-control form-control-sm" placeholder="Phone"></div>
+          <div class="col-12">
+            <button class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Create account</button>
+            <span class="form-text">Default password applies; the user can change it after signing in.</span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-people me-1 text-ju"></i> Linked user accounts</div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <% if (users.length === 0) { %><tr><td colspan="5" class="text-center text-muted py-4">No user accounts linked yet.</td></tr><% } %>
+            <% users.forEach(function (u) { %>
+              <tr>
+                <td class="fw-semibold"><%= u.full_name %></td>
+                <td class="font-monospace small"><%= u.username %></td>
+                <td class="small text-muted"><%= u.email || '-' %></td>
+                <td><span class="badge <%= u.is_active ? 'bg-success' : 'bg-secondary' %>"><%= u.is_active ? 'Active' : 'Inactive' %></span></td>
+                <td class="text-end">
+                  <form method="post" action="/sites/partners/<%= partner.id %>/users/<%= u.id %>/delete" data-confirm="Remove this partner user?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="bi bi-geo-alt me-1 text-ju"></i> Community sites</div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>Site</th><th>Type</th><th>Location</th><th>Contact</th></tr></thead>
+          <tbody>
+            <% if (sites.length === 0) { %><tr><td colspan="4" class="text-center text-muted py-4">No sites linked to this partner.</td></tr><% } %>
+            <% sites.forEach(function (s) { %>
+              <tr>
+                <td class="fw-semibold"><a href="/sites/<%= s.id %>/edit"><%= s.name %></a></td>
+                <td><span class="badge <%= statusBadgeClass(s.site_type) %>"><%= s.site_type %></span></td>
+                <td class="text-muted small"><%= s.address || s.city || '-' %></td>
+                <td class="small"><%= s.contact_person || '-' %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

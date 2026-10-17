@@ -1,0 +1,73 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">User accounts</h2>
+    <p class="text-muted small mb-0"><%= users.length %> account(s)</p>
+  </div>
+  <a href="/admin/users/new" class="btn btn-ju btn-sm"><i class="bi bi-person-plus me-1"></i> Create account</a>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/admin/users">
+      <div class="col-12 col-md-5"><label class="form-label small">Search</label><input type="text" name="search" class="form-control form-control-sm" value="<%= filters.search %>" placeholder="Name, username or email"></div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Role</label>
+        <select name="role" class="form-select form-select-sm">
+          <option value="">All roles</option>
+          <% roles.forEach(function (r) { %><option value="<%= r.name %>" <%= filters.role === r.name ? 'selected' : '' %>><%= r.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All</option>
+          <option value="active" <%= filters.status === 'active' ? 'selected' : '' %>>Active</option>
+          <option value="inactive" <%= filters.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-2 d-grid"><button class="btn btn-ju btn-sm"><i class="bi bi-search"></i></button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-person-badge me-1 text-ju"></i> Accounts</span>
+    <input type="text" class="form-control form-control-sm w-auto" placeholder="Filter table..." data-table-filter="#usersTable">
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" id="usersTable" data-sortable>
+      <thead>
+        <tr><th class="sortable">Full name</th><th>Username</th><th>Role</th><th>Department</th><th>Last login</th><th>Status</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        <% if (users.length === 0) { %><tr><td colspan="7"><div class="empty-state"><i class="bi bi-person-badge"></i>No accounts found.</div></td></tr><% } %>
+        <% users.forEach(function (u) { %>
+          <tr>
+            <td><div class="fw-semibold"><%= u.full_name %></div><div class="text-muted" style="font-size:.75rem"><%= u.email || '-' %></div></td>
+            <td class="font-monospace small"><%= u.username %></td>
+            <td><span class="badge bg-light text-dark border"><%= u.role %></span></td>
+            <td class="small text-muted"><%= u.department_name || '-' %></td>
+            <td class="small text-muted"><%= u.last_login_at ? formatDateTime(u.last_login_at) : 'Never' %></td>
+            <td><span class="badge <%= u.is_active ? 'bg-success' : 'bg-secondary' %>"><%= u.is_active ? 'Active' : 'Inactive' %></span></td>
+            <td class="text-end">
+              <a href="/admin/users/<%= u.id %>/edit" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+              <form method="post" action="/admin/users/<%= u.id %>/reset-password" class="d-inline" data-confirm="Reset the password for <%= u.full_name %> to the default?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-sm btn-outline-secondary" title="Reset password"><i class="bi bi-key"></i></button>
+              </form>
+              <form method="post" action="/admin/users/<%= u.id %>/toggle-active" class="d-inline">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-sm btn-outline-warning" title="<%= u.is_active ? 'Deactivate' : 'Activate' %>"><i class="bi bi-toggle-<%= u.is_active ? 'on' : 'off' %>"></i></button>
+              </form>
+              <form method="post" action="/admin/users/<%= u.id %>/delete" class="d-inline" data-confirm="Delete the account for <%= u.full_name %>?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>

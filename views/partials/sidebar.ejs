@@ -1,0 +1,90 @@
+<%
+  const role = currentUser ? currentUser.role : '';
+  const isAdmin = role === 'Admin';
+  const isCoordinator = role === 'Coordinator';
+  const isInstructor = role === 'Instructor';
+  const isStudent = role === 'Student';
+  const isPartner = role === 'Partner';
+  function active(path) {
+    if (path === '/dashboard') return currentPath === '/dashboard' ? 'active' : '';
+    return currentPath === path || currentPath.startsWith(path + '/') ? 'active' : '';
+  }
+  const initials = currentUser ? currentUser.fullName.split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase() : '';
+%>
+<aside class="sidebar">
+  <div class="brand">
+    <img src="/img/ju-logo.jpg" alt="<%= institutionName %> logo" class="brand-logo-img">
+    <span class="brand-text">
+      <strong><%= institutionName %></strong>
+      <small>CBE Training System</small>
+    </span>
+  </div>
+  <nav class="nav flex-column pb-4">
+    <div class="section-label">Main</div>
+    <a class="nav-link <%= active('/dashboard') %>" href="/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+
+    <% if (isStudent) { %>
+      <div class="section-label">My CBE</div>
+      <a class="nav-link <%= active('/placements') %>" href="/placements"><i class="bi bi-geo-alt"></i> My placement</a>
+      <a class="nav-link <%= active('/programs') %>" href="/programs"><i class="bi bi-journal-bookmark"></i> Programs</a>
+      <a class="nav-link <%= active('/attendance') %>" href="/attendance"><i class="bi bi-calendar-check"></i> My attendance</a>
+      <a class="nav-link <%= active('/reports') %>" href="/reports"><i class="bi bi-file-earmark-text"></i> My reports</a>
+      <a class="nav-link <%= active('/assessments') %>" href="/assessments"><i class="bi bi-clipboard-check"></i> My results</a>
+    <% } %>
+
+    <% if (isInstructor) { %>
+      <div class="section-label">Supervision</div>
+      <a class="nav-link <%= active('/students') %>" href="/students"><i class="bi bi-people"></i> Students</a>
+      <a class="nav-link <%= active('/placements') %>" href="/placements"><i class="bi bi-geo-alt"></i> Placements</a>
+      <a class="nav-link <%= active('/attendance') %>" href="/attendance"><i class="bi bi-calendar-check"></i> Attendance</a>
+      <a class="nav-link <%= active('/reports') %>" href="/reports"><i class="bi bi-file-earmark-text"></i> Fieldwork reports</a>
+      <a class="nav-link <%= active('/assessments') %>" href="/assessments"><i class="bi bi-clipboard-check"></i> Assessments</a>
+      <a class="nav-link <%= active('/programs') %>" href="/programs"><i class="bi bi-journal-bookmark"></i> Programs</a>
+    <% } %>
+
+    <% if (isCoordinator) { %>
+      <div class="section-label">Coordination</div>
+      <a class="nav-link <%= active('/students') %>" href="/students"><i class="bi bi-people"></i> Students</a>
+      <a class="nav-link <%= active('/programs') %>" href="/programs"><i class="bi bi-journal-bookmark"></i> CBE Programs</a>
+      <a class="nav-link <%= active('/sites') %>" href="/sites"><i class="bi bi-building"></i> Community sites</a>
+      <a class="nav-link <%= active('/placements') %>" href="/placements"><i class="bi bi-geo-alt"></i> Placements</a>
+      <a class="nav-link <%= active('/attendance') %>" href="/attendance"><i class="bi bi-calendar-check"></i> Attendance</a>
+      <a class="nav-link <%= active('/reports') %>" href="/reports"><i class="bi bi-file-earmark-text"></i> Fieldwork reports</a>
+      <a class="nav-link <%= active('/assessments') %>" href="/assessments"><i class="bi bi-clipboard-check"></i> Assessments</a>
+      <a class="nav-link <%= active('/analytics') %>" href="/analytics"><i class="bi bi-graph-up"></i> Reports &amp; analytics</a>
+    <% } %>
+
+    <% if (isAdmin) { %>
+      <div class="section-label">Management</div>
+      <a class="nav-link <%= active('/students') %>" href="/students"><i class="bi bi-people"></i> Students</a>
+      <a class="nav-link <%= active('/programs') %>" href="/programs"><i class="bi bi-journal-bookmark"></i> CBE Programs</a>
+      <a class="nav-link <%= active('/sites') %>" href="/sites"><i class="bi bi-building"></i> Community sites</a>
+      <a class="nav-link <%= active('/placements') %>" href="/placements"><i class="bi bi-geo-alt"></i> Placements</a>
+      <a class="nav-link <%= active('/attendance') %>" href="/attendance"><i class="bi bi-calendar-check"></i> Attendance</a>
+      <a class="nav-link <%= active('/reports') %>" href="/reports"><i class="bi bi-file-earmark-text"></i> Fieldwork reports</a>
+      <a class="nav-link <%= active('/assessments') %>" href="/assessments"><i class="bi bi-clipboard-check"></i> Assessments</a>
+      <a class="nav-link <%= active('/analytics') %>" href="/analytics"><i class="bi bi-graph-up"></i> Reports &amp; analytics</a>
+      <div class="section-label">Administration</div>
+      <a class="nav-link <%= active('/admin/users') %>" href="/admin/users"><i class="bi bi-person-badge"></i> User accounts</a>
+      <a class="nav-link <%= active('/admin/departments') %>" href="/admin/departments"><i class="bi bi-diagram-3"></i> Departments</a>
+      <a class="nav-link <%= active('/admin/years') %>" href="/admin/years"><i class="bi bi-calendar3"></i> Academic years</a>
+      <a class="nav-link <%= active('/admin/groups') %>" href="/admin/groups"><i class="bi bi-collection"></i> Student groups</a>
+      <a class="nav-link <%= active('/admin/announcements') %>" href="/admin/announcements"><i class="bi bi-megaphone"></i> Announcements</a>
+      <a class="nav-link <%= active('/admin/settings') %>" href="/admin/settings"><i class="bi bi-gear"></i> Settings</a>
+      <a class="nav-link <%= active('/admin/audit') %>" href="/admin/audit"><i class="bi bi-shield-check"></i> Audit logs</a>
+    <% } %>
+
+    <% if (isPartner) { %>
+      <div class="section-label">Community</div>
+      <a class="nav-link <%= active('/partner') %>" href="/partner"><i class="bi bi-people"></i> Assigned students</a>
+    <% } %>
+
+    <div class="section-label">Account</div>
+    <a class="nav-link <%= active('/notifications') %>" href="/notifications"><i class="bi bi-bell"></i> Notifications</a>
+    <a class="nav-link <%= active('/profile') %>" href="/profile"><i class="bi bi-person"></i> My profile</a>
+    <form method="post" action="/logout" class="px-3 pt-2">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn btn-outline-light btn-sm w-100"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+    </form>
+  </nav>
+</aside>

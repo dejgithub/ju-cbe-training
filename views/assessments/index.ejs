@@ -1,0 +1,86 @@
+<%
+  const role = currentUser.role;
+  const isManager = role === 'Admin' || role === 'Coordinator';
+  const resultByStudent = {};
+  results.forEach(function (r) { resultByStudent[r.student_id] = r; });
+%>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Assessments</h2>
+    <p class="text-muted small mb-0">Evaluate students against the program's assessment criteria and release results.</p>
+  </div>
+  <% if (program) { %>
+    <div class="d-flex gap-2">
+      <% if (isManager) { %><a href="/assessments/<%= program.id %>/criteria" class="btn btn-outline-ju btn-sm"><i class="bi bi-gear me-1"></i> Criteria</a><% } %>
+      <a href="/assessments/<%= program.id %>/evaluate" class="btn btn-ju btn-sm"><i class="bi bi-clipboard-check me-1"></i> Evaluate</a>
+    </div>
+  <% } %>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/assessments">
+      <div class="col-md-6">
+        <label class="form-label small">Program</label>
+        <select name="program_id" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">-- Select program --</option>
+          <% programs.forEach(function (p) { %><option value="<%= p.id %>" <%= String(selectedProgram) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-md-3 d-grid"><button class="btn btn-ju btn-sm"><i class="bi bi-search me-1"></i> Load</button></div>
+      <div class="col-md-3 text-md-end small text-muted">
+        Criteria active weight:
+        <strong class="<%= weightsSum === 100 ? 'text-success' : 'text-danger' %>"><%= weightsSum %>%</strong>
+      </div>
+    </form>
+  </div>
+</div>
+
+<% if (!program) { %>
+  <div class="empty-state"><i class="bi bi-clipboard-check"></i>Select a program to view assessments.</div>
+<% } else { %>
+  <% if (isManager) { %>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <form method="post" action="/assessments/<%= program.id %>/compute">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-outline-ju btn-sm"><i class="bi bi-calculator me-1"></i> Recompute totals</button>
+      </form>
+      <form method="post" action="/assessments/<%= program.id %>/release" data-confirm="Release results to all students in this program?">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-ju btn-sm"><i class="bi bi-send-check me-1"></i> Release results</button>
+      </form>
+      <form method="post" action="/assessments/<%= program.id %>/revoke" data-confirm="Revoke the release of results?">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-x-circle me-1"></i> Revoke release</button>
+      </form>
+    </div>
+  <% } %>
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-people me-1 text-ju"></i> Student results</span>
+      <span class="badge bg-secondary"><%= students.length %> students</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" data-sortable>
+        <thead><tr><th class="sortable">Student</th><th>Student ID</th><th>Group</th><th>Site</th><th class="sortable text-end">Total score</th><th>Grade</th><th>Released</th></tr></thead>
+        <tbody>
+          <% if (students.length === 0) { %><tr><td colspan="7" class="text-center text-muted py-4">No students placed in this program.</td></tr><% } %>
+          <% students.forEach(function (s) {
+               const res = resultByStudent[s.id];
+          %>
+            <tr>
+              <td class="fw-semibold"><%= s.full_name %></td>
+              <td class="font-monospace small"><%= s.student_id %></td>
+              <td class="small text-muted"><%= s.group_name || '-' %></td>
+              <td class="small text-muted"><%= s.site_name || '-' %></td>
+              <td class="text-end"><%= res ? res.total_score : '—' %></td>
+              <td><% if (res && res.grade) { %><span class="badge <%= res.grade === 'F' ? 'bg-danger' : 'bg-success' %>"><%= res.grade %></span><% } else { %><span class="text-muted">—</span><% } %></td>
+              <td><% if (res && res.is_released) { %><span class="badge bg-success">Released</span><% } else { %><span class="badge bg-secondary">Not released</span><% } %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>

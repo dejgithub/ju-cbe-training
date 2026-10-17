@@ -1,0 +1,97 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0"><%= isEdit ? 'Edit student' : 'Register student' %></h2>
+    <p class="text-muted small mb-0"><%= isEdit ? 'Update the student record.' : 'A login account is created automatically using the Student ID as the username.' %></p>
+  </div>
+  <a href="/students" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+</div>
+
+<% if (errors && errors.length) { %>
+  <div class="alert alert-danger">
+    <div class="fw-semibold mb-1"><i class="bi bi-exclamation-octagon me-1"></i>Please correct the following:</div>
+    <ul class="mb-0 small"><% errors.forEach(function (e) { %><li><%= e %></li><% }); %></ul>
+  </div>
+<% } %>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="<%= action %>" class="row g-3" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="col-md-4">
+        <label class="form-label required">Student ID</label>
+        <input type="text" name="student_id" class="form-control" value="<%= student.student_id || '' %>" required maxlength="30">
+      </div>
+      <div class="col-md-8">
+        <label class="form-label required">Full name</label>
+        <input type="text" name="full_name" class="form-control" value="<%= student.full_name || '' %>" required maxlength="150">
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Gender</label>
+        <select name="gender" class="form-select">
+          <% ['Female','Male','Other'].forEach(function (g) { %>
+            <option value="<%= g %>" <%= student.gender === g ? 'selected' : '' %>><%= g %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Date of birth</label>
+        <input type="date" name="date_of_birth" class="form-control" value="<%= student.date_of_birth || '' %>">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Year of study</label>
+        <select name="year_of_study" class="form-select">
+          <% [1,2,3,4,5,6,7].forEach(function (y) { %>
+            <option value="<%= y %>" <%= String(student.year_of_study) === String(y) ? 'selected' : '' %>><%= y %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+          <% ['Enrolled','Inactive','Graduated','Transferred'].forEach(function (s) { %>
+            <option value="<%= s %>" <%= student.status === s ? 'selected' : '' %>><%= s %></option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Department</label>
+        <select name="department_id" class="form-select">
+          <option value="">-- Select department --</option>
+          <% departments.forEach(function (d) { %>
+            <option value="<%= d.id %>" <%= String(student.department_id) === String(d.id) ? 'selected' : '' %>><%= d.name %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Student group</label>
+        <select name="group_id" class="form-select">
+          <option value="">-- No group --</option>
+          <% groups.forEach(function (g) { %>
+            <option value="<%= g.id %>" <%= String(student.group_id) === String(g.id) ? 'selected' : '' %>><%= g.name %><%= g.program_name ? ' - ' + g.program_name : '' %></option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" value="<%= student.email || '' %>" maxlength="150">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Phone</label>
+        <input type="text" name="phone" class="form-control" value="<%= student.phone || '' %>" maxlength="30">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Address</label>
+        <input type="text" name="address" class="form-control" value="<%= student.address || '' %>" maxlength="255">
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-ju"><i class="bi bi-save me-1"></i><%= isEdit ? 'Save changes' : 'Register student' %></button>
+        <a href="/students" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

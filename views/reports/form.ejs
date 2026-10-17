@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">Submit fieldwork report</h2>
+    <p class="text-muted small mb-0">Attach your report as PDF or Word document.</p>
+  </div>
+  <a href="/reports" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+</div>
+
+<% if (errors && errors.length) { %>
+  <div class="alert alert-danger"><ul class="mb-0 small"><% errors.forEach(function (e) { %><li><%= e %></li><% }); %></ul></div>
+<% } %>
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" action="<%= action %>" enctype="multipart/form-data" class="row g-3" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="col-md-8">
+        <label class="form-label required">Report title</label>
+        <input type="text" name="title" class="form-control" value="<%= report.title || '' %>" required maxlength="200">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label required">Program</label>
+        <select name="cbe_program_id" class="form-select" required>
+          <option value="">-- Select program --</option>
+          <% programs.forEach(function (p) { %><option value="<%= p.id %>" <%= String(report.cbe_program_id) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Summary / description</label>
+        <textarea name="description" class="form-control" rows="4" maxlength="5000" placeholder="Briefly describe what the report covers."><%= report.description || '' %></textarea>
+      </div>
+      <div class="col-md-8">
+        <label class="form-label required">Report file</label>
+        <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx" required>
+        <div class="form-text">Accepted: PDF, DOC, DOCX. Maximum 20 MB.</div>
+      </div>
+      <div class="col-12">
+        <button class="btn btn-ju"><i class="bi bi-upload me-1"></i> Submit report</button>
+      </div>
+    </form>
+  </div>
+</div>

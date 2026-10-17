@@ -1,0 +1,101 @@
+<%
+  function fileSize(bytes) {
+    if (!bytes) return '-';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+%>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0"><%= report.title %></h2>
+    <p class="text-muted small mb-0"><i class="bi bi-person"></i> <%= report.student_name %> (<%= report.student_id %>) &middot; <%= report.program_name %></p>
+  </div>
+  <div class="d-flex gap-2">
+    <span class="badge <%= statusBadgeClass(report.status) %> align-self-center"><%= report.status %></span>
+    <a href="/reports/<%= report.id %>/download" class="btn btn-ju btn-sm"><i class="bi bi-download me-1"></i> Download</a>
+    <a href="/reports" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-body">
+        <p class="mb-3"><%= report.description || 'No summary provided.' %></p>
+        <dl class="row mb-0 small">
+          <dt class="col-sm-3 text-muted">File</dt><dd class="col-sm-9"><i class="bi bi-paperclip"></i> <%= report.file_name %> (<%= fileSize(report.file_size) %>)</dd>
+          <dt class="col-sm-3 text-muted">Program code</dt><dd class="col-sm-9"><%= report.program_code %></dd>
+          <dt class="col-sm-3 text-muted">Submitted</dt><dd class="col-sm-9"><%= formatDateTime(report.submitted_at) %></dd>
+          <dt class="col-sm-3 text-muted">Last reviewed</dt><dd class="col-sm-9"><%= report.reviewed_at ? formatDateTime(report.reviewed_at) + (report.reviewer_name ? ' by ' + report.reviewer_name : '') : 'Not yet reviewed' %></dd>
+        </dl>
+      </div>
+    </div>
+
+    <% if (canReview) { %>
+      <div class="card mb-3">
+        <div class="card-header"><i class="bi bi-clipboard-check me-1 text-ju"></i> Review this report</div>
+        <div class="card-body">
+          <form method="post" action="/reports/<%= report.id %>/review" class="row g-2">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="col-md-4">
+              <label class="form-label small">Decision</label>
+              <select name="status" class="form-select form-select-sm">
+                <% reviewStatuses.forEach(function (s) { %><option value="<%= s %>"><%= s %></option><% }); %>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label small">Comment (optional)</label>
+              <input type="text" name="review_comment" class="form-control form-control-sm" placeholder="Feedback for the student">
+            </div>
+            <div class="col-12"><button class="btn btn-ju btn-sm"><i class="bi bi-check2 me-1"></i> Save review</button></div>
+          </form>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="card">
+      <div class="card-header"><i class="bi bi-chat-dots me-1 text-ju"></i> Feedback &amp; discussion</div>
+      <div class="card-body">
+        <% if (feedback.length === 0) { %><p class="text-muted small">No feedback yet.</p><% } %>
+        <% feedback.forEach(function (f) { %>
+          <div class="border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between">
+              <span class="fw-semibold small"><%= f.full_name %> <span class="badge bg-light text-dark border"><%= f.role_name %></span></span>
+              <span class="text-muted" style="font-size:.72rem"><%= formatDateTime(f.created_at) %></span>
+            </div>
+            <div class="small"><%= f.comment %></div>
+          </div>
+        <% }); %>
+        <form method="post" action="/reports/<%= report.id %>/comment" class="row g-2 mt-2">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="col-12"><textarea name="comment" class="form-control form-control-sm" rows="2" placeholder="Add a comment..."></textarea></div>
+          <div class="col-12"><button class="btn btn-outline-ju btn-sm"><i class="bi bi-send me-1"></i> Add comment</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <% if (report.review_comment) { %>
+      <div class="card mb-3">
+        <div class="card-header"><i class="bi bi-flag me-1 text-ju"></i> Review summary</div>
+        <div class="card-body small">
+          <span class="badge <%= statusBadgeClass(report.status) %> mb-2"><%= report.status %></span>
+          <p class="mb-0"><%= report.review_comment %></p>
+        </div>
+      </div>
+    <% } %>
+    <div class="card">
+      <div class="card-header"><i class="bi bi-layers me-1 text-ju"></i> Revisions</div>
+      <div class="list-group list-group-flush">
+        <% revisions.forEach(function (rv) { %>
+          <a href="/reports/<%= rv.id %>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center <%= rv.id === report.id ? 'active' : '' %>">
+            <span class="small"><%= rv.title %><br><span class="text-muted" style="font-size:.72rem"><%= formatDateTime(rv.submitted_at) %></span></span>
+            <span class="badge <%= statusBadgeClass(rv.status) %>"><%= rv.status %></span>
+          </a>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+</div>

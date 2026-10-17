@@ -1,0 +1,76 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">Import students from CSV</h2>
+    <p class="text-muted small mb-0">Bulk-register students. A login account is created for each imported student.</p>
+  </div>
+  <a href="/students" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+</div>
+
+<% if (errors && errors.length) { %>
+  <div class="alert alert-danger"><ul class="mb-0 small"><% errors.forEach(function (e) { %><li><%= e %></li><% }); %></ul></div>
+<% } %>
+
+<% if (result) { %>
+  <div class="alert alert-success">
+    <i class="bi bi-check-circle me-1"></i> Imported <strong><%= result.imported %></strong>, skipped <strong><%= result.skipped %></strong>.
+  </div>
+  <% if (result.skippedRows && result.skippedRows.length) { %>
+    <div class="card mb-3">
+      <div class="card-header">Skipped rows</div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Student ID</th><th>Name</th><th>Reason</th></tr></thead>
+          <tbody>
+            <% result.skippedRows.forEach(function (r) { %>
+              <tr><td class="font-monospace small"><%= r.row.student_id || '-' %></td><td><%= r.row.full_name || '-' %></td><td class="text-danger small"><%= r.reason %></td></tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% } %>
+<% } %>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-body">
+        <form method="post" action="/students/import" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="mb-3">
+            <label class="form-label required">CSV file</label>
+            <input type="file" name="file" class="form-control" accept=".csv" required>
+            <div class="form-text">Maximum size: 10 MB. First row must be a header row.</div>
+          </div>
+          <button class="btn btn-ju"><i class="bi bi-upload me-1"></i> Import students</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-info-circle me-1 text-ju"></i> Expected columns</div>
+      <div class="card-body small">
+        <p class="mb-2">The following columns are recognised (only <code>student_id</code> and <code>full_name</code> are required):</p>
+        <table class="table table-sm">
+          <tbody>
+            <tr><td><code>student_id</code></td><td>Unique student ID / login username</td></tr>
+            <tr><td><code>full_name</code></td><td>Student full name</td></tr>
+            <tr><td><code>gender</code></td><td>Male / Female / Other</td></tr>
+            <tr><td><code>date_of_birth</code></td><td>YYYY-MM-DD</td></tr>
+            <tr><td><code>department_code</code></td><td>e.g. PH, NUR</td></tr>
+            <tr><td><code>year_of_study</code></td><td>1-7</td></tr>
+            <tr><td><code>email</code></td><td>Email address</td></tr>
+            <tr><td><code>phone</code></td><td>Phone number</td></tr>
+            <tr><td><code>address</code></td><td>Address</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-light border mb-0 small">
+          <strong>Example</strong>
+          <pre class="mb-0 small">student_id,full_name,gender,department_code,year_of_study,email
+JU/2023/006,Abebe Kebede,Male,PH,3,abebe@ju.edu.et</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

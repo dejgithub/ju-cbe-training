@@ -1,0 +1,62 @@
+<%
+  const values = {};
+  settings.forEach(function (s) { values[s.setting_key] = s.setting_value; });
+%>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">System settings</h2>
+    <p class="text-muted small mb-0">Configure institution details and assessment behavior.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-sliders me-1 text-ju"></i> Settings</div>
+      <div class="card-body">
+        <form method="post" action="/admin/settings" class="row g-3">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="col-md-6">
+            <label class="form-label">Site name</label>
+            <input type="text" name="site_name" class="form-control" value="<%= values.site_name || 'JU CBE Training' %>">
+            <div class="form-text">Short name shown in the header and browser title.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Institution name</label>
+            <input type="text" name="institution_name" class="form-control" value="<%= values.institution_name || 'Jimma University' %>">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Pass mark (%)</label>
+            <input type="number" name="pass_mark" class="form-control" min="0" max="100" value="<%= values.pass_mark || '50' %>">
+            <div class="form-text">Minimum score required to pass.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Assessment weights locked</label>
+            <select name="assessment_weights_locked" class="form-select">
+              <option value="0" <%= values.assessment_weights_locked === '1' ? '' : 'selected' %>>No</option>
+              <option value="1" <%= values.assessment_weights_locked === '1' ? 'selected' : '' %>>Yes</option>
+            </select>
+            <div class="form-text">When locked, criteria weights cannot be changed.</div>
+          </div>
+          <div class="col-12"><hr class="my-1"><div class="fw-semibold small text-muted"><i class="bi bi-geo-alt me-1"></i>Public contact details</div></div>
+          <div class="col-md-6">
+            <label class="form-label">Contact email</label>
+            <input type="email" name="contact_email" class="form-control" value="<%= values.contact_email || '' %>" placeholder="cbe@example.edu">
+            <div class="form-text">Shown on the public Contact Us page.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Contact phone</label>
+            <input type="text" name="contact_phone" class="form-control" value="<%= values.contact_phone || '' %>" placeholder="+251 ...">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Contact address</label>
+            <input type="text" name="contact_address" class="form-control" value="<%= values.contact_address || '' %>" placeholder="Jimma University, Jimma, Ethiopia">
+          </div>
+          <div class="col-12">
+            <button class="btn btn-ju"><i class="bi bi-save me-1"></i> Save settings</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

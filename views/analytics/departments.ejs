@@ -1,0 +1,48 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Department performance report</h2>
+    <p class="text-muted small mb-0">Students, assessment averages and pass counts by department.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/analytics/departments.csv" class="btn btn-ju btn-sm"><i class="bi bi-download me-1"></i> Download CSV</a>
+    <a href="/analytics" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Analytics</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-bar-chart me-1 text-ju"></i> Participation by department</div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>Department</th><th class="text-end">Students placed</th></tr></thead>
+          <tbody>
+            <% if (participation.length === 0) { %><tr><td colspan="2" class="text-center text-muted py-4">No data.</td></tr><% } %>
+            <% participation.forEach(function (p) { %><tr><td><%= p.department %></td><td class="text-end"><%= p.students %></td></tr><% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-clipboard-data me-1 text-ju"></i> Assessment performance</div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>Department</th><th class="text-end">Students</th><th class="text-end">Avg. score</th><th class="text-end">Passed</th></tr></thead>
+          <tbody>
+            <% if (performance.length === 0) { %><tr><td colspan="4" class="text-center text-muted py-4">No data.</td></tr><% } %>
+            <% performance.forEach(function (r) { %>
+              <tr>
+                <td><%= r.department %></td>
+                <td class="text-end"><%= r.students %></td>
+                <td class="text-end"><%= r.avg_score === null ? '-' : r.avg_score %></td>
+                <td class="text-end"><span class="badge bg-success"><%= r.passed %></span></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

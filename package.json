@@ -1,0 +1,40 @@
+{
+  "name": "ju-cbe-training",
+  "version": "1.0.0",
+  "description": "Jimma University Community-Based Education (CBE) Training Management System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:init": "node scripts/init-db.js",
+    "db:seed": "node scripts/seed.js",
+    "test": "node tests/smoke.js"
+  },
+  "keywords": [
+    "cbe",
+    "training",
+    "university",
+    "express",
+    "mysql"
+  ],
+  "author": "Jimma University",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "csv-parse": "^5.5.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-mysql-session": "^3.0.3",
+    "express-session": "^1.18.0",
+    "multer": "^2.4.0",
+    "mysql2": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

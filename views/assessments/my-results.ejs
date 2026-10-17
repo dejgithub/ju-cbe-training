@@ -1,0 +1,27 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">My results</h2>
+    <p class="text-muted small mb-0">CBE assessment results released to you.</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" data-sortable>
+      <thead><tr><th class="sortable">Program</th><th>Code</th><th class="sortable text-end">Total score</th><th>Grade</th><th>Status</th><th>Last updated</th></tr></thead>
+      <tbody>
+        <% if (results.length === 0) { %><tr><td colspan="6"><div class="empty-state"><i class="bi bi-clipboard-check"></i>No results have been released yet.</div></td></tr><% } %>
+        <% results.forEach(function (r) { %>
+          <tr>
+            <td class="fw-semibold"><%= r.program_name %></td>
+            <td class="font-monospace small"><%= r.program_code %></td>
+            <td class="text-end"><%= r.is_released ? r.total_score : '—' %></td>
+            <td><% if (r.is_released && r.grade) { %><span class="badge <%= r.grade === 'F' ? 'bg-danger' : 'bg-success' %>"><%= r.grade %></span><% } else { %><span class="text-muted">—</span><% } %></td>
+            <td><% if (r.is_released) { %><span class="badge bg-success">Released</span><% } else { %><span class="badge bg-secondary">Pending release</span><% } %></td>
+            <td class="small text-muted"><%= r.computed_at ? formatDateTime(r.computed_at) : '-' %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>

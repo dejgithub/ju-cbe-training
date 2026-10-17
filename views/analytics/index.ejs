@@ -1,0 +1,119 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">Reports &amp; Analytics</h2>
+    <p class="text-muted small mb-0">Participation, attendance and assessment insights across all CBE programs.</p>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card"><div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-people"></i></div>
+      <div><div class="stat-value"><%= counts.students_total %></div><div class="stat-label">Enrolled students</div></div>
+    </div></div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card"><div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-journal-bookmark"></i></div>
+      <div><div class="stat-value"><%= counts.programs_total %></div><div class="stat-label">Total programs</div></div>
+    </div></div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card"><div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-geo-alt"></i></div>
+      <div><div class="stat-value"><%= counts.placements_active %></div><div class="stat-label">Active placements</div></div>
+    </div></div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="card stat-card"><div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-warning-subtle text-warning"><i class="bi bi-building"></i></div>
+      <div><div class="stat-value"><%= counts.sites_total %></div><div class="stat-label">Active sites</div></div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-bar-chart me-1 text-ju"></i> Participation by department</div>
+      <div class="card-body"><div class="chart-container"><canvas id="deptChart"></canvas></div></div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-pie-chart me-1 text-ju"></i> Fieldwork reports by status</div>
+      <div class="card-body"><div class="chart-container"><canvas id="reportChart"></canvas></div></div>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-graph-up me-1 text-ju"></i> Attendance trend (last 14 days)</div>
+      <div class="card-body"><div class="chart-container"><canvas id="trendChart"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-journal-bookmark me-1 text-ju"></i> Participation by program</div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>Program</th><th>Status</th><th class="text-end">Students</th></tr></thead>
+          <tbody>
+            <% byProgram.forEach(function (p) { %>
+              <tr><td class="small"><%= p.program %></td><td><span class="badge <%= statusBadgeClass(p.status) %>"><%= p.status %></span></td><td class="text-end"><%= p.students %></td></tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-file-earmark-bar-graph me-1 text-ju"></i> Downloadable reports</div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="/analytics/students"><i class="bi bi-people me-2 text-ju"></i> Student registration report</a>
+        <a class="list-group-item list-group-item-action" href="/analytics/placements"><i class="bi bi-geo-alt me-2 text-ju"></i> Community placement report</a>
+        <a class="list-group-item list-group-item-action" href="/analytics/attendance"><i class="bi bi-calendar-check me-2 text-ju"></i> Attendance report</a>
+        <a class="list-group-item list-group-item-action" href="/analytics/assessments"><i class="bi bi-clipboard-check me-2 text-ju"></i> Supervisor assessment report</a>
+        <a class="list-group-item list-group-item-action" href="/analytics/fieldwork"><i class="bi bi-file-earmark-text me-2 text-ju"></i> Fieldwork submissions report</a>
+        <a class="list-group-item list-group-item-action" href="/analytics/programs"><i class="bi bi-journal-bookmark me-2 text-ju"></i> Program completion report</a>
+        <a class="list-group-item list-group-item-action" href="/analytics/departments"><i class="bi bi-diagram-3 me-2 text-ju"></i> Department performance report</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const byDept = <%- JSON.stringify(byDept) %>;
+    const reportStatus = <%- JSON.stringify(reportStatus) %>;
+    const trend = <%- JSON.stringify(trend) %>;
+
+    new Chart(document.getElementById('deptChart'), {
+      type: 'bar',
+      data: { labels: byDept.map(d => d.department), datasets: [{ label: 'Students', data: byDept.map(d => d.students), backgroundColor: '#7295CD' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+    });
+
+    new Chart(document.getElementById('reportChart'), {
+      type: 'doughnut',
+      data: { labels: reportStatus.map(r => r.status), datasets: [{ data: reportStatus.map(r => r.total), backgroundColor: ['#0d6efd','#ffc107','#198754','#dc3545','#6c757d'] }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    new Chart(document.getElementById('trendChart'), {
+      type: 'line',
+      data: {
+        labels: trend.map(t => t.date),
+        datasets: [
+          { label: 'Present', data: trend.map(t => t.present), borderColor: '#198754', backgroundColor: 'rgba(25,135,84,.1)', fill: true, tension: .3 },
+          { label: 'Absent', data: trend.map(t => t.absent), borderColor: '#dc3545', tension: .3 },
+          { label: 'Late', data: trend.map(t => t.late), borderColor: '#ffc107', tension: .3 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+    });
+  });
+</script>

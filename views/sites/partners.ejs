@@ -1,0 +1,53 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">Community Partners</h2>
+    <p class="text-muted small mb-0"><%= partners.length %> partner organization(s)</p>
+  </div>
+  <a href="/sites" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Community sites</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead><tr><th>Organization</th><th>Contact</th><th>Sites</th><th></th></tr></thead>
+          <tbody>
+            <% if (partners.length === 0) { %><tr><td colspan="4" class="text-center text-muted py-4">No partners yet.</td></tr><% } %>
+            <% partners.forEach(function (p) { %>
+              <tr>
+                <td class="fw-semibold"><%= p.organization_name %></td>
+                <td class="small"><%= p.contact_person || '-' %><div class="text-muted"><%= p.phone || '' %></div></td>
+                <td><span class="badge bg-ju"><%= p.site_count %></span></td>
+                <td class="text-end">
+                  <a href="/sites/partners/<%= p.id %>" class="btn btn-sm btn-outline-ju">Manage</a>
+                  <form method="post" action="/sites/partners/<%= p.id %>/delete" class="d-inline" data-confirm="Delete <%= p.organization_name %>?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-plus-circle me-1 text-ju"></i> Add partner organization</div>
+      <div class="card-body">
+        <form method="post" action="/sites/partners" class="row g-2">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="col-12"><input type="text" name="organization_name" class="form-control form-control-sm" placeholder="Organization name" required></div>
+          <div class="col-md-6"><input type="text" name="contact_person" class="form-control form-control-sm" placeholder="Contact person"></div>
+          <div class="col-md-6"><input type="text" name="phone" class="form-control form-control-sm" placeholder="Phone"></div>
+          <div class="col-12"><input type="email" name="email" class="form-control form-control-sm" placeholder="Email"></div>
+          <div class="col-12"><input type="text" name="address" class="form-control form-control-sm" placeholder="Address"></div>
+          <div class="col-12"><textarea name="description" class="form-control form-control-sm" rows="2" placeholder="Description"></textarea></div>
+          <div class="col-12"><button class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Add partner</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

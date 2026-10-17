@@ -1,0 +1,64 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Assessment criteria</h2>
+    <p class="text-muted small mb-0"><%= program.name %></p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/assessments?program_id=<%= program.id %>" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+  </div>
+</div>
+
+<div class="alert <%= weightsSum === 100 ? 'alert-success' : 'alert-warning' %> d-flex justify-content-between">
+  <span><i class="bi bi-info-circle me-1"></i> Total active weight</span>
+  <strong><%= weightsSum %>% <%= weightsSum === 100 ? '' : '(should equal 100%)' %></strong>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-list-check me-1 text-ju"></i> Defined criteria</div>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead><tr><th>Criterion</th><th>Weight</th><th>Active</th><th class="text-end">Actions</th></tr></thead>
+          <tbody>
+            <% if (criteria.length === 0) { %><tr><td colspan="4" class="text-center text-muted py-4">No criteria defined yet.</td></tr><% } %>
+            <% criteria.forEach(function (c) { %>
+              <tr>
+                <td colspan="4" class="p-0">
+                  <form method="post" action="/assessments/<%= program.id %>/criteria/<%= c.id %>" class="row g-2 align-items-center m-0 p-2 border-bottom">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div class="col-md-5"><input type="text" name="name" class="form-control form-control-sm" value="<%= c.name %>" required></div>
+                    <div class="col-md-4"><input type="text" name="description" class="form-control form-control-sm" value="<%= c.description || '' %>" placeholder="Description"></div>
+                    <div class="col-md-1"><input type="number" name="weight" class="form-control form-control-sm" value="<%= c.weight %>" min="0" max="100" required></div>
+                    <div class="col-md-1 text-center"><input type="checkbox" name="is_active" value="1" class="form-check-input" <%= c.is_active ? 'checked' : '' %>></div>
+                    <div class="col-md-1 d-flex gap-1">
+                      <button class="btn btn-sm btn-outline-primary" title="Save"><i class="bi bi-save"></i></button>
+                    </div>
+                  </form>
+                  <form method="post" action="/assessments/<%= program.id %>/criteria/<%= c.id %>/delete" class="px-2 pb-2 text-end" data-confirm="Delete this criterion? Scores recorded against it will also be removed.">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i> Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-plus-circle me-1 text-ju"></i> Add criterion</div>
+      <div class="card-body">
+        <form method="post" action="/assessments/<%= program.id %>/criteria" class="row g-2">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="col-12"><label class="form-label small">Name</label><input type="text" name="name" class="form-control form-control-sm" required maxlength="100"></div>
+          <div class="col-12"><label class="form-label small">Description</label><input type="text" name="description" class="form-control form-control-sm"></div>
+          <div class="col-6"><label class="form-label small">Weight (%)</label><input type="number" name="weight" class="form-control form-control-sm" min="0" max="100" value="0" required></div>
+          <div class="col-12"><button class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Add criterion</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

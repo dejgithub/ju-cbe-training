@@ -1,0 +1,141 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0"><%= isEdit ? 'Edit placement' : 'Assign student placement' %></h2>
+    <p class="text-muted small mb-0"><%= isEdit ? 'Update the community site, supervisor, group or dates.' : 'Place one or many students at a community site for a CBE program.' %></p>
+  </div>
+  <a href="/placements" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Back</a>
+</div>
+
+<% const siteOptions = sites; const instructorOptions = instructors; %>
+<% function siteSelect(selected) { %>
+  <select name="community_site_id" class="form-select form-select-sm" required>
+    <option value="">-- Select site --</option>
+    <% siteOptions.forEach(function (s) { %><option value="<%= s.id %>" <%= String(selected) === String(s.id) ? 'selected' : '' %>><%= s.name %><%= s.city ? ' (' + s.city + ')' : '' %></option><% }); %>
+  </select>
+<% } %>
+<% function programSelect(selected, list) { %>
+  <select name="cbe_program_id" class="form-select form-select-sm" required>
+    <option value="">-- Select program --</option>
+    <% list.forEach(function (p) { %><option value="<%= p.id %>" <%= String(selected) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+  </select>
+<% } %>
+<% function supervisorSelect(selected) { %>
+  <select name="supervisor_id" class="form-select form-select-sm">
+    <option value="">-- No supervisor --</option>
+    <% instructorOptions.forEach(function (i) { %><option value="<%= i.id %>" <%= String(selected) === String(i.id) ? 'selected' : '' %>><%= i.title ? i.title + ' ' : '' %><%= i.full_name %></option><% }); %>
+  </select>
+<% } %>
+<% function groupSelect(selected) { %>
+  <select name="group_id" class="form-select form-select-sm">
+    <option value="">-- No group --</option>
+    <% groups.forEach(function (g) { %><option value="<%= g.id %>" <%= String(selected) === String(g.id) ? 'selected' : '' %>><%= g.name %></option><% }); %>
+  </select>
+<% } %>
+
+<% if (isEdit) { %>
+  <div class="card">
+    <div class="card-body">
+      <form method="post" action="<%= action %>" class="row g-3" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="col-md-6">
+          <label class="form-label">Student</label>
+          <input type="text" class="form-control" value="<%= placement.student_name %> (<%= placement.student_id %>)" disabled>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Program</label>
+          <input type="text" class="form-control" value="<%= placement.program_name %>" disabled>
+        </div>
+        <div class="col-md-6"><label class="form-label required">Community site</label><%- siteSelect(placement.community_site_id) %></div>
+        <div class="col-md-6"><label class="form-label">Supervisor</label><%- supervisorSelect(placement.supervisor_id) %></div>
+        <div class="col-md-6"><label class="form-label">Student group</label><%- groupSelect(placement.group_id) %></div>
+        <div class="col-md-6"><label class="form-label">Status</label>
+          <select name="status" class="form-select form-select-sm">
+            <% statuses.forEach(function (s) { %><option value="<%= s %>" <%= placement.status === s ? 'selected' : '' %>><%= s %></option><% }); %>
+          </select>
+        </div>
+        <div class="col-md-3"><label class="form-label">Start date</label><input type="date" name="start_date" class="form-control form-control-sm" value="<%= placement.start_date || '' %>"></div>
+        <div class="col-md-3"><label class="form-label">End date</label><input type="date" name="end_date" class="form-control form-control-sm" value="<%= placement.end_date || '' %>"></div>
+        <div class="col-12"><button class="btn btn-ju"><i class="bi bi-save me-1"></i> Save changes</button></div>
+      </form>
+    </div>
+  </div>
+<% } else { %>
+  <ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-single" type="button">Single student</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bulk" type="button">Bulk assign</button></li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="tab-single">
+      <div class="card">
+        <div class="card-body">
+          <div class="alert alert-light border small">
+            <i class="bi bi-info-circle me-1"></i> Leave the <strong>Program</strong> set if you started from a program page. Selecting a program here lists students not yet placed in it.
+          </div>
+          <form method="get" action="/placements/new" class="row g-2 align-items-end mb-3">
+            <div class="col-md-6">
+              <label class="form-label small">Filter students by program</label>
+              <select name="program_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All enrolled students</option>
+                <% allPrograms.forEach(function (p) { %><option value="<%= p.id %>" <%= String(filters.program_id) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+              </select>
+            </div>
+          </form>
+          <form method="post" action="/placements" class="row g-3" novalidate>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="col-md-6">
+              <label class="form-label required">Student</label>
+              <select name="student_id" class="form-select form-select-sm" required>
+                <option value="">-- Select student --</option>
+                <% unassigned.forEach(function (s) { %><option value="<%= s.id %>"><%= s.full_name %><%= s.student_id ? ' (' + s.student_id + ')' : '' %></option><% }); %>
+              </select>
+              <div class="form-text"><%= unassigned.length %> student(s) available.</div>
+            </div>
+            <div class="col-md-6"><label class="form-label required">Program</label><%- programSelect(filters.program_id, allPrograms) %></div>
+            <div class="col-md-6"><label class="form-label required">Community site</label><%- siteSelect('') %></div>
+            <div class="col-md-6"><label class="form-label">Supervisor</label><%- supervisorSelect('') %></div>
+            <div class="col-md-6"><label class="form-label">Student group</label><%- groupSelect('') %></div>
+            <div class="col-md-3"><label class="form-label">Start date</label><input type="date" name="start_date" class="form-control form-control-sm"></div>
+            <div class="col-md-3"><label class="form-label">End date</label><input type="date" name="end_date" class="form-control form-control-sm"></div>
+            <div class="col-12"><button class="btn btn-ju"><i class="bi bi-plus-lg me-1"></i> Assign placement</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-bulk">
+      <div class="card">
+        <div class="card-body">
+          <form method="post" action="/placements/bulk" novalidate>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label required">Program</label><%- programSelect(filters.program_id, allPrograms) %></div>
+              <div class="col-md-6"><label class="form-label required">Community site</label><%- siteSelect('') %></div>
+              <div class="col-md-6"><label class="form-label">Supervisor</label><%- supervisorSelect('') %></div>
+              <div class="col-md-6"><label class="form-label">Student group</label><%- groupSelect('') %></div>
+              <div class="col-md-3"><label class="form-label">Start date</label><input type="date" name="start_date" class="form-control form-control-sm"></div>
+              <div class="col-md-3"><label class="form-label">End date</label><input type="date" name="end_date" class="form-control form-control-sm"></div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label mb-0 required">Students</label>
+              <input type="text" class="form-control form-control-sm w-auto" placeholder="Filter..." data-table-filter="#bulkStudents">
+            </div>
+            <div class="border rounded" style="max-height:340px;overflow:auto">
+              <table class="table table-sm table-hover mb-0" id="bulkStudents">
+                <thead class="sticky-top bg-white"><tr><th style="width:40px"><input type="checkbox" onclick="document.querySelectorAll('.bulk-student').forEach(c=>c.checked=this.checked)"></th><th>Student</th><th>Department</th></tr></thead>
+                <tbody>
+                  <% if (unassigned.length === 0) { %><tr><td colspan="3" class="text-center text-muted py-3">No unassigned students for this selection.</td></tr><% } %>
+                  <% unassigned.forEach(function (s) { %>
+                    <tr><td><input class="form-check-input bulk-student" type="checkbox" name="student_ids" value="<%= s.id %>"></td><td><%= s.full_name %></td><td class="text-muted small"><%= s.department_name || '-' %></td></tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-3"><button class="btn btn-ju"><i class="bi bi-people me-1"></i> Assign selected students</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>

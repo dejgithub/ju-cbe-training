@@ -1,0 +1,67 @@
+<%
+  const initials = profile.fullName.split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase();
+%>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="h5 mb-0">My profile</h2>
+    <p class="text-muted small mb-0">Your account details and role information.</p>
+  </div>
+  <a href="/profile/password" class="btn btn-ju btn-sm"><i class="bi bi-key me-1"></i> Change password</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card text-center">
+      <div class="card-body">
+        <div class="avatar-circle mx-auto mb-3" style="width:72px;height:72px;font-size:1.5rem"><%= initials %></div>
+        <h3 class="h5 mb-0"><%= profile.fullName %></h3>
+        <span class="badge bg-ju mt-1"><%= profile.role %></span>
+        <% if (profile.isActive) { %><div class="small text-success mt-2"><i class="bi bi-check-circle"></i> Active account</div><% } else { %><div class="small text-danger mt-2">Inactive account</div><% } %>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-person me-1 text-ju"></i> Account</div>
+      <div class="card-body">
+        <dl class="row mb-0 small">
+          <dt class="col-sm-4 text-muted">Username</dt><dd class="col-sm-8 font-monospace"><%= profile.username %></dd>
+          <dt class="col-sm-4 text-muted">Email</dt><dd class="col-sm-8"><%= profile.email || '-' %></dd>
+          <dt class="col-sm-4 text-muted">Phone</dt><dd class="col-sm-8"><%= profile.phone || '-' %></dd>
+          <dt class="col-sm-4 text-muted">Department</dt><dd class="col-sm-8"><%= profile.departmentName || '-' %></dd>
+          <dt class="col-sm-4 text-muted">Last login</dt><dd class="col-sm-8"><%= profile.lastLoginAt ? formatDateTime(profile.lastLoginAt) : 'This is your first login' %></dd>
+          <dt class="col-sm-4 text-muted">Account created</dt><dd class="col-sm-8"><%= formatDateTime(profile.createdAt) %></dd>
+        </dl>
+      </div>
+    </div>
+
+    <% if (profile.role === 'Student' && extra) { %>
+      <div class="card">
+        <div class="card-header"><i class="bi bi-mortarboard me-1 text-ju"></i> Student profile</div>
+        <div class="card-body"><dl class="row mb-0 small">
+          <dt class="col-sm-4 text-muted">Student ID</dt><dd class="col-sm-8 font-monospace"><%= extra.student_id %></dd>
+          <dt class="col-sm-4 text-muted">Year of study</dt><dd class="col-sm-8"><%= extra.year_of_study %></dd>
+          <dt class="col-sm-4 text-muted">Group</dt><dd class="col-sm-8"><%= extra.group_name || 'Not assigned' %></dd>
+          <dt class="col-sm-4 text-muted">Department</dt><dd class="col-sm-8"><%= extra.department_name || '-' %></dd>
+          <dt class="col-sm-4 text-muted">Status</dt><dd class="col-sm-8"><span class="badge <%= statusBadgeClass(extra.status) %>"><%= extra.status %></span></dd>
+        </dl></div>
+      </div>
+    <% } else if (profile.role === 'Instructor' && extra) { %>
+      <div class="card">
+        <div class="card-header"><i class="bi bi-person-badge me-1 text-ju"></i> Instructor profile</div>
+        <div class="card-body"><dl class="row mb-0 small">
+          <dt class="col-sm-4 text-muted">Employee ID</dt><dd class="col-sm-8"><%= extra.employee_id || '-' %></dd>
+          <dt class="col-sm-4 text-muted">Title</dt><dd class="col-sm-8"><%= extra.title || '-' %></dd>
+          <dt class="col-sm-4 text-muted">Specialization</dt><dd class="col-sm-8"><%= extra.specialization || '-' %></dd>
+        </dl></div>
+      </div>
+    <% } else if (profile.role === 'Partner' && extra) { %>
+      <div class="card">
+        <div class="card-header"><i class="bi bi-building me-1 text-ju"></i> Partner organization</div>
+        <div class="card-body"><dl class="row mb-0 small">
+          <dt class="col-sm-4 text-muted">Organization</dt><dd class="col-sm-8"><%= extra.organization_name %></dd>
+        </dl></div>
+      </div>
+    <% } %>
+  </div>
+</div>

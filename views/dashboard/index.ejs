@@ -1,0 +1,371 @@
+<%
+  const role = currentUser.role;
+%>
+
+<% if (role === 'Admin' || role === 'Coordinator') { %>
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-people"></i></div>
+          <div><div class="stat-value"><%= counts.students_total %></div><div class="stat-label">Students in CBE</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-person-video3"></i></div>
+          <div><div class="stat-value"><%= counts.instructors_total %></div><div class="stat-label">Instructors / supervisors</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-journal-bookmark"></i></div>
+          <div><div class="stat-value"><%= counts.programs_active %></div><div class="stat-label">Active programs</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-warning-subtle text-warning"><i class="bi bi-building"></i></div>
+          <div><div class="stat-value"><%= counts.sites_total %></div><div class="stat-label">Registered community sites</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-danger-subtle text-danger"><i class="bi bi-file-earmark-text"></i></div>
+          <div><div class="stat-value"><%= counts.reports_pending %></div><div class="stat-label">Pending fieldwork reports</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-secondary-subtle text-secondary"><i class="bi bi-check2-circle"></i></div>
+          <div><div class="stat-value"><%= counts.programs_completed %></div><div class="stat-label">Completed programs</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-geo-alt"></i></div>
+          <div><div class="stat-value"><%= counts.placements_active %></div><div class="stat-label">Active placements</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card stat-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-calendar-event"></i></div>
+          <div><div class="stat-value"><%= counts.programs_planned %></div><div class="stat-label">Planned programs</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-8">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-bar-chart me-1 text-ju"></i> Student participation by department</span>
+          <a href="/analytics" class="btn btn-sm btn-outline-ju">View analytics</a>
+        </div>
+        <div class="card-body"><div class="chart-container"><canvas id="participationChart"></canvas></div></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-pie-chart me-1 text-ju"></i> Program completion</div>
+        <div class="card-body"><div class="chart-container"><canvas id="programChart"></canvas></div></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-8">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-graph-up me-1 text-ju"></i> Attendance trend (last 14 days)</div>
+        <div class="card-body"><div class="chart-container"><canvas id="attendanceChart"></canvas></div></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-megaphone me-1 text-ju"></i> Announcements</div>
+        <div class="card-body">
+          <% if (announcements.length === 0) { %>
+            <p class="text-muted small mb-0">No announcements at this time.</p>
+          <% } %>
+          <% announcements.forEach(function (a) { %>
+            <div class="mb-3 pb-2 border-bottom">
+              <div class="fw-semibold small"><%= a.title %></div>
+              <div class="text-muted" style="font-size:.82rem"><%= a.message %></div>
+              <div class="text-muted" style="font-size:.72rem"><%= formatDateTime(a.created_at) %></div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-calendar-week me-1 text-ju"></i> Upcoming activities</div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Date</th><th>Activity</th><th>Program</th><th>Site / location</th><th>Type</th></tr></thead>
+            <tbody>
+              <% if (upcoming.length === 0) { %>
+                <tr><td colspan="5" class="text-center text-muted py-4">No upcoming activities.</td></tr>
+              <% } %>
+              <% upcoming.forEach(function (a) { %>
+                <tr>
+                  <td><%= formatDate(a.scheduled_date) || (a.deadline_at ? 'Due ' + formatDateTime(a.deadline_at) : '-') %></td>
+                  <td class="fw-semibold"><%= a.title %></td>
+                  <td class="text-muted"><%= a.program_name %></td>
+                  <td class="text-muted"><%= a.site_name || a.location || '-' %></td>
+                  <td><span class="badge bg-light text-dark border"><%= a.type %></span></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const participation = <%- JSON.stringify(participation) %>;
+      const programs = <%- JSON.stringify(programs) %>;
+      const attendance = <%- JSON.stringify(attendance) %>;
+      const counts = <%- JSON.stringify(counts) %>;
+
+      new Chart(document.getElementById('participationChart'), {
+        type: 'bar',
+        data: {
+          labels: participation.map(p => p.department),
+          datasets: [{ label: 'Students', data: participation.map(p => p.students), backgroundColor: '#7295CD' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+      });
+
+      new Chart(document.getElementById('programChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Active', 'Planned', 'Completed', 'Cancelled'],
+          datasets: [{
+            data: [counts.programs_active, counts.programs_planned, counts.programs_completed, Math.max(0, counts.programs_total - counts.programs_active - counts.programs_planned - counts.programs_completed)],
+            backgroundColor: ['#198754', '#0dcaf0', '#6c757d', '#dc3545']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+
+      new Chart(document.getElementById('attendanceChart'), {
+        type: 'line',
+        data: {
+          labels: attendance.map(a => a.date),
+          datasets: [
+            { label: 'Present', data: attendance.map(a => a.present), borderColor: '#198754', backgroundColor: 'rgba(25,135,84,.1)', fill: true, tension: .3 },
+            { label: 'Absent', data: attendance.map(a => a.absent), borderColor: '#dc3545', tension: .3 },
+            { label: 'Late', data: attendance.map(a => a.late), borderColor: '#ffc107', tension: .3 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+      });
+    });
+  </script>
+
+<% } else if (role === 'Instructor') { %>
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <div class="card stat-card"><div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-people"></i></div>
+        <div><div class="stat-value"><%= supervisorReports.length %></div><div class="stat-label">My supervised students</div></div>
+      </div></div>
+    </div>
+    <div class="col-md-4">
+      <div class="card stat-card"><div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon bg-danger-subtle text-danger"><i class="bi bi-file-earmark-text"></i></div>
+        <div><div class="stat-value"><%= counts.reports_pending %></div><div class="stat-label">Reports pending review</div></div>
+      </div></div>
+    </div>
+    <div class="col-md-4">
+      <div class="card stat-card"><div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-calendar-event"></i></div>
+        <div><div class="stat-value"><%= upcoming.length %></div><div class="stat-label">Upcoming activities</div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <% if (instructor) { %>
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-person-badge me-1 text-ju"></i> Supervisor profile</span>
+      <a href="/assessments" class="btn btn-sm btn-outline-ju">Assess students</a>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4"><small class="text-muted d-block">Name</small><span class="fw-semibold"><%= instructor.title %> <%= currentUser.fullName %></span></div>
+        <div class="col-md-4"><small class="text-muted d-block">Employee ID</small><span class="fw-semibold"><%= instructor.employee_id || '-' %></span></div>
+        <div class="col-md-4"><small class="text-muted d-block">Specialization</small><span class="fw-semibold"><%= instructor.specialization || '-' %></span></div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <div class="card">
+    <div class="card-header"><i class="bi bi-people me-1 text-ju"></i> My students and placements</div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0" data-sortable>
+        <thead><tr><th class="sortable">Student</th><th class="sortable">Student ID</th><th>Department</th><th>Community site</th><th>Program</th><th>Status</th></tr></thead>
+        <tbody>
+          <% if (supervisorReports.length === 0) { %><tr><td colspan="6" class="text-center text-muted py-4">No placements assigned to you yet.</td></tr><% } %>
+          <% supervisorReports.forEach(function (p) { %>
+            <tr>
+              <td class="fw-semibold"><%= p.student_name %></td>
+              <td><%= p.student_id %></td>
+              <td class="text-muted"><%= p.department_name || '-' %></td>
+              <td class="text-muted"><%= p.site_name || '-' %></td>
+              <td class="text-muted"><%= p.program_name %></td>
+              <td><span class="badge <%= statusBadgeClass(p.status) %>"><%= p.status %></span></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<% } else if (role === 'Student') { %>
+  <% if (typeof student !== 'undefined' && student) { %>
+    <div class="hero p-4 mb-3">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <div class="small text-white-50">Welcome back</div>
+          <h2 class="h4 mb-1"><%= student.full_name %></h2>
+          <div class="small"><i class="bi bi-hash"></i> <%= student.student_id %> &middot; <i class="bi bi-diagram-3"></i> <%= student.department_name || 'No department' %> &middot; Year <%= student.year_of_study %></div>
+        </div>
+        <div class="text-end">
+          <div class="small text-white-50">Assigned group</div>
+          <div class="fw-semibold"><%= student.group_name || 'Not assigned' %></div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-7">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-calendar-week me-1 text-ju"></i> My upcoming activities &amp; deadlines</div>
+        <div class="card-body">
+          <% if (upcoming.length === 0) { %><p class="text-muted small mb-0">You have no upcoming activities.</p><% } %>
+          <div class="timeline">
+            <% upcoming.forEach(function (a) { %>
+              <div class="timeline-item">
+                <div class="fw-semibold"><%= a.title %> <span class="badge bg-light text-dark border ms-1"><%= a.type %></span></div>
+                <div class="text-muted small"><%= a.program_name %></div>
+                <div class="text-muted" style="font-size:.78rem">
+                  <% if (a.scheduled_date) { %><i class="bi bi-calendar"></i> <%= formatDate(a.scheduled_date) %> <% } %>
+                  <% if (a.deadline_at) { %><i class="bi bi-alarm ms-1"></i> Due <%= formatDateTime(a.deadline_at) %><% } %>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-5">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-calendar-check me-1 text-ju"></i> My attendance (last 3 months)</div>
+        <div class="card-body"><div class="chart-container-sm"><canvas id="studentAttendanceChart"></canvas></div></div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between"><span><i class="bi bi-file-earmark-text me-1 text-ju"></i> My recent reports</span><a href="/reports" class="small">All reports</a></div>
+        <div class="card-body">
+          <% if (!myReports || myReports.length === 0) { %><p class="text-muted small mb-0">You have not submitted any reports yet.</p><% } %>
+          <% (myReports || []).slice(0,5).forEach(function (r) { %>
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div><a href="/reports/<%= r.id %>" class="fw-semibold small"><%= r.title %></a><div class="text-muted" style="font-size:.72rem"><%= r.program_name %> &middot; <%= formatDateTime(r.submitted_at) %></div></div>
+              <span class="badge <%= statusBadgeClass(r.status) %>"><%= r.status %></span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card h-100">
+        <div class="card-header"><i class="bi bi-clipboard-check me-1 text-ju"></i> My results</div>
+        <div class="card-body">
+          <% if (!myResults || myResults.length === 0) { %><p class="text-muted small mb-0">No results have been released yet.</p><% } %>
+          <% (myResults || []).forEach(function (r) { %>
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div class="fw-semibold small"><%= r.program_name %></div>
+              <div>
+                <% if (r.is_released) { %>
+                  <span class="badge bg-ju"><%= r.total_score %></span>
+                  <span class="badge bg-light text-dark border"><%= r.grade || '-' %></span>
+                <% } else { %>
+                  <span class="badge bg-secondary">Pending release</span>
+                <% } %>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header"><i class="bi bi-megaphone me-1 text-ju"></i> Announcements</div>
+        <div class="card-body">
+          <% if (announcements.length === 0) { %><p class="text-muted small mb-0">No announcements at this time.</p><% } %>
+          <% announcements.forEach(function (a) { %>
+            <div class="mb-2"><span class="fw-semibold"><%= a.title %></span> <span class="text-muted small">- <%= a.message %></span></div>
+          <% }); %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const summary = <%- JSON.stringify(studentAttendance || []) %>;
+      const labels = summary.map(s => s.status);
+      const values = summary.map(s => s.total);
+      new Chart(document.getElementById('studentAttendanceChart'), {
+        type: 'doughnut',
+        data: { labels: labels.length ? labels : ['No data'], datasets: [{ data: values.length ? values : [1], backgroundColor: ['#198754','#dc3545','#ffc107','#0dcaf0','#ced4da'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+    });
+  </script>
+
+<% } else if (role === 'Partner') { %>
+  <div class="card mb-3">
+    <div class="card-body d-flex align-items-center gap-3">
+      <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-building"></i></div>
+      <div>
+        <div class="fw-semibold"><%= partner ? partner.organization_name : 'Community partner' %></div>
+        <div class="text-muted small">You can view students assigned to your sites and confirm their participation.</div>
+      </div>
+      <a href="/partner" class="btn btn-ju ms-auto"><i class="bi bi-people me-1"></i> View assigned students</a>
+    </div>
+  </div>
+  <div class="row g-3">
+    <% (partnerSites || []).forEach(function (s) { %>
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100"><div class="card-body">
+          <div class="d-flex justify-content-between"><span class="fw-semibold"><%= s.name %></span><span class="badge <%= statusBadgeClass(s.status) %>"><%= s.status %></span></div>
+          <div class="text-muted small mt-1"><i class="bi bi-geo-alt"></i> <%= s.address || s.city || '-' %></div>
+          <div class="small mt-2"><span class="badge bg-light text-dark border"><%= s.site_type %></span></div>
+        </div></div>
+      </div>
+    <% }); %>
+    <% if (!partnerSites || partnerSites.length === 0) { %>
+      <div class="col-12"><div class="empty-state"><i class="bi bi-building"></i>No active sites are linked to your organization.</div></div>
+    <% } %>
+  </div>
+<% } %>

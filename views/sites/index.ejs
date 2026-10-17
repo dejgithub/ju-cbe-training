@@ -1,0 +1,62 @@
+<%
+  const canManage = currentUser.role === 'Admin' || currentUser.role === 'Coordinator';
+%>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Community Sites</h2>
+    <p class="text-muted small mb-0"><%= sites.length %> site(s)</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="/sites/partners" class="btn btn-outline-ju btn-sm"><i class="bi bi-building-gear me-1"></i> Partners</a>
+    <% if (canManage) { %><a href="/sites/new" class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Register site</a><% } %>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/sites">
+      <div class="col-md-6"><label class="form-label small">Search</label><input type="text" name="search" class="form-control form-control-sm" value="<%= filters.search %>" placeholder="Site name, address or partner"></div>
+      <div class="col-md-4">
+        <label class="form-label small">Type</label>
+        <select name="type" class="form-select form-select-sm">
+          <option value="">All types</option>
+          <% siteTypes.forEach(function (t) { %><option value="<%= t %>" <%= filters.type === t ? 'selected' : '' %>><%= t %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-md-2 d-grid"><button class="btn btn-ju btn-sm"><i class="bi bi-search"></i></button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" data-sortable>
+      <thead>
+        <tr><th class="sortable">Site name</th><th class="sortable">Type</th><th>Location</th><th>Contact</th><th class="sortable">Capacity</th><th class="sortable">Students</th><th>Status</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        <% if (sites.length === 0) { %><tr><td colspan="8"><div class="empty-state"><i class="bi bi-building"></i>No community sites found.</div></td></tr><% } %>
+        <% sites.forEach(function (s) { %>
+          <tr>
+            <td><div class="fw-semibold"><%= s.name %></div><div class="text-muted" style="font-size:.75rem"><%= s.organization_name || 'No partner' %></div></td>
+            <td><span class="badge <%= statusBadgeClass(s.site_type) %>"><%= s.site_type %></span></td>
+            <td class="text-muted small"><%= s.address || s.city || '-' %></td>
+            <td class="small"><%= s.contact_person || '-' %><div class="text-muted"><%= s.phone || '' %></div></td>
+            <td><%= s.available_placements %></td>
+            <td><span class="badge bg-ju"><%= s.active_students %></span></td>
+            <td><span class="badge <%= statusBadgeClass(s.status) %>"><%= s.status %></span></td>
+            <td class="text-end">
+              <% if (canManage) { %>
+                <a href="/sites/<%= s.id %>/edit" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                <form method="post" action="/sites/<%= s.id %>/delete" class="d-inline" data-confirm="Delete <%= s.name %>?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>

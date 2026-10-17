@@ -1,0 +1,84 @@
+<%
+  const canManage = currentUser.role === 'Admin' || currentUser.role === 'Coordinator';
+%>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="h5 mb-0">Student Placements</h2>
+    <p class="text-muted small mb-0"><%= placements.length %> placement(s)</p>
+  </div>
+  <% if (canManage) { %><a href="/placements/new" class="btn btn-ju btn-sm"><i class="bi bi-plus-lg me-1"></i> Assign placement</a><% } %>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="/placements">
+      <div class="col-12 col-md-3">
+        <label class="form-label small">Search</label>
+        <input type="text" name="search" class="form-control form-control-sm" value="<%= filters.search %>" placeholder="Student name or ID">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Program</label>
+        <select name="program_id" class="form-select form-select-sm">
+          <option value="">All programs</option>
+          <% programs.forEach(function (p) { %><option value="<%= p.id %>" <%= String(filters.program_id) === String(p.id) ? 'selected' : '' %>><%= p.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small">Site</label>
+        <select name="site_id" class="form-select form-select-sm">
+          <option value="">All sites</option>
+          <% sites.forEach(function (s) { %><option value="<%= s.id %>" <%= String(filters.site_id) === String(s.id) ? 'selected' : '' %>><%= s.name %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select form-select-sm">
+          <option value="">All</option>
+          <% statuses.forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option><% }); %>
+        </select>
+      </div>
+      <div class="col-6 col-md-1 d-grid"><button class="btn btn-ju btn-sm"><i class="bi bi-search"></i></button></div>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-geo-alt me-1 text-ju"></i> Placements</span>
+    <input type="text" class="form-control form-control-sm w-auto" placeholder="Filter table..." data-table-filter="#placementsTable">
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" id="placementsTable" data-sortable>
+      <thead>
+        <tr>
+          <th class="sortable">Student</th><th>Student ID</th><th>Department</th>
+          <th>Program</th><th>Community site</th><th>Supervisor</th><th>Period</th><th>Status</th><th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (placements.length === 0) { %><tr><td colspan="9"><div class="empty-state"><i class="bi bi-geo-alt"></i>No placements found.</div></td></tr><% } %>
+        <% placements.forEach(function (p) { %>
+          <tr>
+            <td class="fw-semibold"><%= p.student_name %></td>
+            <td class="font-monospace small"><%= p.student_id %></td>
+            <td class="text-muted small"><%= p.department_name || '-' %></td>
+            <td class="small"><%= p.program_name %></td>
+            <td class="small text-muted"><%= p.site_name || '-' %></td>
+            <td class="small text-muted"><%= p.supervisor_name || 'Unassigned' %></td>
+            <td class="small text-muted"><%= formatDate(p.start_date) %> - <%= formatDate(p.end_date) %></td>
+            <td><span class="badge <%= statusBadgeClass(p.status) %>"><%= p.status %></span></td>
+            <td class="text-end">
+              <% if (canManage) { %>
+                <a href="/placements/<%= p.id %>/edit" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                <form method="post" action="/placements/<%= p.id %>/delete" class="d-inline" data-confirm="Remove this placement?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
