@@ -14,14 +14,27 @@ const app = express();
 app.set('trust proxy', 1);
 
 // ---------------- View engine ----------------
+// On Vercel the bundled function may not resolve __dirname the same way,
+// so fall back to cwd if the relative path has no views directory.
+const fs = require('fs');
+const projectRoot = path.join(__dirname, '..');
+const viewsDir = fs.existsSync(path.join(projectRoot, 'views'))
+  ? path.join(projectRoot, 'views')
+  : path.join(process.cwd(), 'views');
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '..', 'views'));
+app.set('views', viewsDir);
 app.use(expressLayouts);
 
 // ---------------- Static assets ----------------
-app.use(express.static(path.join(__dirname, '..', 'public')));
+const publicDir = fs.existsSync(path.join(projectRoot, 'public'))
+  ? path.join(projectRoot, 'public')
+  : path.join(process.cwd(), 'public');
+app.use(express.static(publicDir));
 if (!require('./middleware/upload').USE_MEMORY) {
-  app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+  const uploadsDir = fs.existsSync(path.join(projectRoot, 'uploads'))
+    ? path.join(projectRoot, 'uploads')
+    : path.join(process.cwd(), 'uploads');
+  app.use('/uploads', express.static(uploadsDir));
 }
 
 // ---------------- Body parsing ----------------
